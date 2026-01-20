@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "armor_stand",
+  "version": "${version}",
+
+  "name": "Risugami's Armor Stand",
+  "description": "",
+  "authors": [
+    "farnfarn02",
+    "Risugami"
+  ],
+
+  "license": "MIT",
+  "icon": "assets/armor_stand/icon.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "stationapi:event_bus": [
+      "farn.armor_stand.ArmorStandStationAPI"
+    ]
+  },
+  "mixins": [
+    "armor_stand.mixins.json"
+  ],
+  "accessWidener": "armor_stand.accesswidener",
+  "depends": {
+    "minecraft": "1.0.0-beta.7.3"
+  }
+}
