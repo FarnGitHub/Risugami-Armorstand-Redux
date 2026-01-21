@@ -65,7 +65,7 @@ public class ArmorStandChangeSkinPacket extends Packet implements ManagedPacket<
 
     @Override
     public int size() {
-        return 5;
+        return 1;
     }
 
     @Override
