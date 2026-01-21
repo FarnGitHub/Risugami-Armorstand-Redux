@@ -3,9 +3,7 @@ package farn.armor_stand.block.entity;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.block.BlockRenderManager;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
@@ -14,17 +12,8 @@ import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.world.World;
-import net.modificationstation.stationapi.api.client.StationRenderAPI;
 import net.modificationstation.stationapi.api.client.item.ArmorTextureProvider;
-import net.modificationstation.stationapi.api.client.render.RendererAccess;
-import net.modificationstation.stationapi.api.client.render.model.BakedModel;
-import net.modificationstation.stationapi.api.client.render.model.VanillaBakedModel;
-import net.modificationstation.stationapi.api.client.render.model.json.ModelTransformation;
-import net.modificationstation.stationapi.api.client.texture.SpriteAtlasTexture;
-import net.modificationstation.stationapi.api.client.texture.atlas.Atlases;
 import net.modificationstation.stationapi.api.util.Identifier;
 import org.lwjgl.opengl.GL11;
 
@@ -33,7 +22,6 @@ import java.util.Map;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL11.glRotatef;
 import static org.lwjgl.opengl.GL11.glScalef;
-import static org.lwjgl.opengl.GL11.glTranslated;
 
 @Environment(EnvType.CLIENT)
 public class ArmorStandBlockEntityRenderer extends BlockEntityRenderer {
@@ -42,14 +30,19 @@ public class ArmorStandBlockEntityRenderer extends BlockEntityRenderer {
 	private BipedEntityModel body = getBipedModel(0.5F);
 	private static String[] armorArray = PlayerEntityRenderer.armorTextureNames;
 	private static final Map<Identifier, String[]> STATIONAPI$ARMOR_CACHE = new Reference2ObjectOpenHashMap<>();
-	private BlockRenderManager blockRenders = new BlockRenderManager();
+	private LivingEntity dummyEntity;
 
-	public void render(BlockEntity blockEntity, double var2, double var4, double var6, float var8) {
+	public void render(BlockEntity blockEntity, double x, double y, double z, float var8) {
 		if (blockEntity instanceof ArmorStandBlockEntity tileEntityArmor) {
 			if (armorArray != null) {
+				if(dummyEntity == null || tileEntityArmor.world != dummyEntity.world) {
+					dummyEntity = new LivingEntityDummy(tileEntityArmor.world);
+				}
 				glPushMatrix();
 				float brightness = tileEntityArmor.world.method_1782(blockEntity.x, blockEntity.y, blockEntity.z);
-				glTranslatef((float) var2 + 0.5F, (float) var4 + 1.48F, (float) var6 + 0.5F);
+				dummyEntity.minBrightness = brightness;
+				dummyEntity.setPosition(x,y,z);
+				glTranslatef((float) x + 0.5F, (float) y + 1.48F, (float) z + 0.5F);
 				glScalef(0.9F, -0.9F, -0.9F);
 				float var13 = (float) (tileEntityArmor.getPushedBlockData() * 360 / 16);
 				glRotatef(var13, 0.0F, 1.0F, 0.0F);
@@ -74,7 +67,8 @@ public class ArmorStandBlockEntityRenderer extends BlockEntityRenderer {
 								}
 
 								GL11.glDisable(GL11.GL_CULL_FACE);
-								arsenicRenderBlock(tileEntityArmor.world, stack, brightness);
+								glColor3f(brightness, brightness, brightness);
+								EntityRenderDispatcher.INSTANCE.heldItemRenderer.renderItem(dummyEntity, stack);
 								GL11.glEnable(GL11.GL_CULL_FACE);
 								GL11.glPopMatrix();
 							} else if(stack.getItem() instanceof ArmorItem armor) {
@@ -93,7 +87,7 @@ public class ArmorStandBlockEntityRenderer extends BlockEntityRenderer {
 								renderBipedEntityModel(currentModel);
 								glPopMatrix();
 							} else if(var25 == 4) {
-								aresenicRenderItem(stack);
+								aresenicRenderHeldItem(stack);
 							}
 						}
 					}
@@ -146,7 +140,7 @@ public class ArmorStandBlockEntityRenderer extends BlockEntityRenderer {
 		return "/assets/" + identifier.namespace + "/stationapi/textures/armor/" + identifier.path + (armorIndex == 2 ? "_2.png" : "_1.png");
 	}
 
-	public void aresenicRenderItem(ItemStack stack) {
+	public void aresenicRenderHeldItem(ItemStack stack) {
 		GL11.glPushMatrix();
 		GL11.glDisable(GL11.GL_CULL_FACE);
 		this.body.rightArm.transform(0.0625F);
@@ -179,41 +173,9 @@ public class ArmorStandBlockEntityRenderer extends BlockEntityRenderer {
 			GL11.glRotatef(20.0F, 0.0F, 0.0F, 1.0F);
 		}
 
-		EntityRenderDispatcher.INSTANCE.heldItemRenderer.renderItem(EntityRenderDispatcher.INSTANCE.cameraEntity, stack);
+		EntityRenderDispatcher.INSTANCE.heldItemRenderer.renderItem(dummyEntity, stack);
 		GL11.glEnable(GL11.GL_CULL_FACE);
 		GL11.glPopMatrix();
-	}
-
-	public void arsenicRenderBlock(World world, ItemStack item, float brightness) {
-		if(item.getItem() instanceof BlockItem blockItem) {
-			SpriteAtlasTexture atlas = StationRenderAPI.getBakedModelManager().getAtlas(Atlases.GAME_ATLAS_TEXTURE);
-			atlas.bindTexture();
-			glPushMatrix();
-			BakedModel model = RendererAccess.INSTANCE.getRenderer().bakedModelRenderer().getModel(item, world, (LivingEntity) null, 0);
-			blockRenders.inventoryColorEnabled = true;
-			if (model instanceof VanillaBakedModel) blockRenders.render(blockItem.getBlock(), item.getDamage(), brightness);
-			else renderModel(world, item);
-			blockRenders.inventoryColorEnabled = false;
-			glPopMatrix();
-		}
-	}
-
-	private void renderModel(World world, ItemStack item) {
-		glTranslated(0, 3D / 16, -5D / 16);
-		glRotatef(20, 1, 0, 0);
-		glRotatef(45, 0, 1, 0);
-		glScalef(-1, -1, 1);
-		glRotatef(45, 0, 1, 0);
-		glRotatef(-75, 1, 0, 0);
-		glTranslated(0, -2.5 / 16, 0);
-		Tessellator.INSTANCE.startQuads();
-		renderItem(world, item, ModelTransformation.Mode.THIRD_PERSON_RIGHT_HAND);
-		Tessellator.INSTANCE.draw();
-	}
-
-	public void renderItem(World world, ItemStack item, ModelTransformation.Mode renderMode) {
-		if (item == null || item.itemId == 0 || item.count < 1) return;
-		RendererAccess.INSTANCE.getRenderer().bakedModelRenderer().renderItem((LivingEntity)null, item, renderMode, world, 1.0F, renderMode.ordinal());
 	}
 
 }
