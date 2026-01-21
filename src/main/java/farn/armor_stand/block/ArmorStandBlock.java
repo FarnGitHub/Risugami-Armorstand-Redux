@@ -10,17 +10,18 @@ import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
-import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.modificationstation.stationapi.api.gui.screen.container.GuiHelper;
+import net.modificationstation.stationapi.api.network.packet.MessagePacket;
 import net.modificationstation.stationapi.api.template.block.TemplateBlockWithEntity;
 import net.modificationstation.stationapi.api.util.Identifier;
 
 import java.util.ArrayList;
+import java.util.function.Consumer;
 
 public class ArmorStandBlock extends TemplateBlockWithEntity {
 
@@ -57,9 +58,15 @@ public class ArmorStandBlock extends TemplateBlockWithEntity {
 		var1.setBlockMeta(var2, var3, var4, var6);
 	}
 
-	public boolean onUse(World var1, int var2, int var3, int var4, PlayerEntity var5) {
-		if(!var1.isRemote && var1.getBlockEntity(var2, var3, var4) instanceof ArmorStandBlockEntity var7) {
-			GuiHelper.openGUI(var5, ArmorStandStationAPI.NAMESPACE.id("armor_stand_gui"), var7, new ArmorStandScreenHandler(var5.inventory, var7));
+	public boolean onUse(World world, int x, int y, int z, PlayerEntity var5) {
+		if(!world.isRemote && world.getBlockEntity(x, y, z) instanceof ArmorStandBlockEntity armorEntity) {
+			GuiHelper.openGUI(var5, ArmorStandStationAPI.NAMESPACE.id("armor_stand_gui"), armorEntity, new ArmorStandScreenHandler(var5.inventory, armorEntity), new Consumer<MessagePacket>() {
+				@Override
+				public void accept(MessagePacket messagePacket) {
+					messagePacket.bytes = new byte[1];
+					messagePacket.bytes[0] = armorEntity.skin;
+				}
+			});
 		}
 		return true;
 	}
@@ -99,4 +106,5 @@ public class ArmorStandBlock extends TemplateBlockWithEntity {
 	protected BlockEntity createBlockEntity() {
 		return new ArmorStandBlockEntity();
 	}
+
 }

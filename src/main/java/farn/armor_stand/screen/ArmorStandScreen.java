@@ -1,40 +1,25 @@
 package farn.armor_stand.screen;
 
 import farn.armor_stand.block.entity.ArmorStandBlockEntity;
+import farn.armor_stand.packet.ArmorStandChangeSkinPacket;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.inventory.Inventory;
+import net.modificationstation.stationapi.api.network.packet.PacketHelper;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
 @Environment(EnvType.CLIENT)
 public class ArmorStandScreen extends HandledScreen {
-	public static final int GRIDX = 8;
-	public static final int GRIDY = 18;
-	public static final int BLOCKX = 46;
-	public static final int BLOCKY = 36;
-	public static final int INVENTORYX = 8;
-	public static final int INVENTORYY = 68;
-	public static final int BUTTONSIZE = 7;
-	public static final int BUTTONDOWNX = 176;
-	public static final int BUTTONDOWNY = 0;
-	public static final int BUTTONUPX = 183;
-	public static final int BUTTONUPY = 0;
-	public static final int STALKERX = 45;
-	public static final int STALKERY = 17;
-	public static final int LISTX = 93;
-	public static final int LISTY = 17;
-	public static final int LISTOFFSET = 9;
 	public final Inventory inv;
-	public final ArmorStandBlockEntity tile;
+	public final ArmorStandBlockEntity armorStandEntity;
 	private boolean mouseWasDown = false;
-	private ArmorStandBlockEntity ArmorInventory;
 
 	public ArmorStandScreen(Inventory var1, ArmorStandBlockEntity var2) {
 		super(new ArmorStandScreenHandler(var1, var2));
 		this.inv = var1;
-		this.tile = var2;
+		this.armorStandEntity = var2;
 		this.backgroundHeight = 150;
 	}
 
@@ -47,7 +32,7 @@ public class ArmorStandScreen extends HandledScreen {
 		this.drawTexture(var3, var4, 0, 0, this.backgroundWidth, this.backgroundHeight);
 
 		for(int l = 1; l < 5; ++l) {
-			this.drawTexture(var3 + 93, var4 + 17 + l * 9, this.tile.skin != l ? 183 : 176, 0, 7, 7);
+			this.drawTexture(var3 + 93, var4 + 17 + l * 9, this.armorStandEntity.skin != l ? 183 : 176, 0, 7, 7);
 		}
 	}
 
@@ -61,7 +46,11 @@ public class ArmorStandScreen extends HandledScreen {
 
 			for(int i1 = 1; i1 < 5; ++i1) {
 				if(i > 93 && j > 17 + i1 * 9 && i <= 100 && j <= 24 + i1 * 9) {
-					this.tile.skin = (byte)i1;
+					this.armorStandEntity.skin = (byte)i1;
+					if(minecraft.world.isRemote) {
+						PacketHelper.send(new ArmorStandChangeSkinPacket(this.armorStandEntity.skin));
+					}
+					break;
 				}
 			}
 
@@ -73,7 +62,7 @@ public class ArmorStandScreen extends HandledScreen {
 	}
 
 	protected void drawForeground() {
-		this.textRenderer.draw(this.tile.getName(), 8, 6, 4210752);
+		this.textRenderer.draw(this.armorStandEntity.getName(), 8, 6, 4210752);
 		this.textRenderer.draw("Skin", 93, 6, 4210752);
 		this.textRenderer.draw(this.inv.getName(), 8, this.backgroundHeight - 96 + 2, 4210752);
 		this.textRenderer.draw("Black", 102, 26, 4210752);

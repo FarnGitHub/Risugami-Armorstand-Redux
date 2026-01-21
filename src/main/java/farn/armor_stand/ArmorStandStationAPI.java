@@ -3,6 +3,7 @@ package farn.armor_stand;
 import farn.armor_stand.block.ArmorStandBlock;
 import farn.armor_stand.block.entity.ArmorStandBlockEntity;
 import farn.armor_stand.block.entity.ArmorStandBlockEntityRenderer;
+import farn.armor_stand.packet.ArmorStandChangeSkinPacket;
 import farn.armor_stand.packet.ArmorStandEntityUpdatePacket;
 import farn.armor_stand.screen.ArmorStandScreen;
 import net.fabricmc.api.EnvType;
@@ -42,7 +43,11 @@ public class ArmorStandStationAPI {
         event.register(NAMESPACE.id("armor_stand_gui"), new GuiHandler(new GuiHandler.ScreenFactory() {
             @Override
             public Screen create(PlayerEntity player, Inventory inventory, MessagePacket packet) {
-                return new ArmorStandScreen(player.inventory, (ArmorStandBlockEntity) inventory);
+                if(inventory instanceof ArmorStandBlockEntity armorStandBlockEntity) {
+                    armorStandBlockEntity.skin = packet.bytes[0];
+                    return new ArmorStandScreen(player.inventory, armorStandBlockEntity);
+                }
+                return null;
             }
         }, new GuiHandler.InventoryFactory() {
             @Override
@@ -71,6 +76,7 @@ public class ArmorStandStationAPI {
     @EventListener
     public void registerPacket(PacketRegisterEvent event) {
         Registry.register(PacketTypeRegistry.INSTANCE,  NAMESPACE.id("armor_stand_update_packet"), ArmorStandEntityUpdatePacket.TYPE);
+        Registry.register(PacketTypeRegistry.INSTANCE,  NAMESPACE.id("armor_stand_skin_packet"), ArmorStandChangeSkinPacket.TYPE);
     }
 
 }

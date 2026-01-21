@@ -124,12 +124,6 @@ dependencies {
         }
     }
 
-    if (project.hasProperty("spawneggs_version")) {
-        modImplementation("net.danygames2014:spawneggs:${project.spawneggs_version}") {
-            transitive = false
-        }
-    }
-
     if (project.hasProperty("bhcreative_version")) {
         modImplementation("maven.modrinth:bh-creative:${project.bhcreative_version}-b1.7.3") {
             transitive = false

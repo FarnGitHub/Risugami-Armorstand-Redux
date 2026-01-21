@@ -10,9 +10,11 @@ import net.minecraft.screen.slot.Slot;
 
 public class ArmorStandScreenHandler extends ScreenHandler {
 	private Inventory inv;
+	public ArmorStandBlockEntity armorStandEntity;
 
 	public ArmorStandScreenHandler(Inventory var1, ArmorStandBlockEntity var2) {
 		this.inv = var1;
+		this.armorStandEntity = var2;
 		int var5 = 0;
 		this.addSlot(new Slot(var2, 4, 46, 36));
 

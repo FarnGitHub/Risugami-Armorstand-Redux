@@ -14,9 +14,18 @@ import net.minecraft.network.packet.Packet;
 public class ArmorStandBlockEntity extends BlockEntity implements Inventory {
 	public ItemStack[] items = new ItemStack[5];
 	public byte skin = 3;
+	private boolean init = false;
 
 	public int size() {
 		return this.items.length;
+	}
+
+	public void tick() {
+		super.tick();
+		if(!init) {
+			init = true;
+			markDirty();
+		}
 	}
 
 	public ItemStack getStack(int var1) {
@@ -29,7 +38,7 @@ public class ArmorStandBlockEntity extends BlockEntity implements Inventory {
 			if(this.items[var1].count <= var2) {
 				var3 = this.items[var1];
 				this.items[var1] = null;
-				this.onInventoryChanged();
+				this.markDirty();
 				return var3;
 			} else {
 				var3 = this.items[var1].split(var2);
@@ -37,7 +46,7 @@ public class ArmorStandBlockEntity extends BlockEntity implements Inventory {
 					this.items[var1] = null;
 				}
 
-				this.onInventoryChanged();
+				this.markDirty();
 				return var3;
 			}
 		} else {
@@ -51,7 +60,7 @@ public class ArmorStandBlockEntity extends BlockEntity implements Inventory {
 			var2.count = this.getInventoryStackLimit();
 		}
 
-		this.onInventoryChanged();
+		this.markDirty();
 	}
 
 	public String getName() {
@@ -105,10 +114,6 @@ public class ArmorStandBlockEntity extends BlockEntity implements Inventory {
 	}
 
 	public boolean canPlayerUse(PlayerEntity var1) {
-		return this.world.getBlockEntity(x, y, z) == this && var1.getDistance((double)this.x + 0.5D, (double)this.y + 0.5D, (double)this.z + 0.5D) <= 64.0D;
-	}
-
-	public void onInventoryChanged() {
-		markDirty();
+		return var1.getDistance((double)this.x + 0.5D, (double)this.y + 0.5D, (double)this.z + 0.5D) <= 64.0D;
 	}
 }
