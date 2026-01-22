@@ -87,7 +87,7 @@ public class ArmorStandScreenHandler extends ScreenHandler {
 		ItemStack stack = slotIndex.getStack();
 		if(stack != null)
 			for(Slot slot : this.armorSlots)
-				if(slot.canInsert(stack))
+				if(!slot.hasStack() && slot.canInsert(stack))
 					return slot.id;
 		return -1;
 	}
