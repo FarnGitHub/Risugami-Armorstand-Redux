@@ -47,16 +47,16 @@ public class ArmorStandBlockEntityRenderer extends BlockEntityRenderer {
 				float var13 = (float) (tileEntityArmor.getPushedBlockData() * 360 / 16);
 				glRotatef(var13, 0.0F, 1.0F, 0.0F);
 
-				for (int var25 = -1; var25 < 5; ++var25) {
-					if (var25 == -1) {
-						bindSkin(tileEntityArmor);
+				for (int index = -1; index < 5; ++index) {
+					if (index == -1) {
+						this.bindTexture(getSkin(tileEntityArmor));
 						glPushMatrix();
 						renderBipedEntityModel(body);
 						glPopMatrix();
 					} else {
-						ItemStack stack = tileEntityArmor.getStack(var25);
+						ItemStack stack = tileEntityArmor.getStack(index);
 						if (stack != null) {
-							if(var25 == 0 && stack.getItem() instanceof BlockItem itemBlock) {
+							if(index == 0 && stack.getItem() instanceof BlockItem itemBlock) {
 								GL11.glPushMatrix();
 								this.body.head.transform(0.0625F);
 								if (BlockRenderManager.isSideLit(itemBlock.getBlock().getRenderType())) {
@@ -86,7 +86,7 @@ public class ArmorStandBlockEntityRenderer extends BlockEntityRenderer {
 								glColor3f(brightness, brightness, brightness);
 								renderBipedEntityModel(currentModel);
 								glPopMatrix();
-							} else if(var25 == 4) {
+							} else if(index == 4) {
 								aresenicRenderHeldItem(stack);
 							}
 						}
@@ -100,19 +100,16 @@ public class ArmorStandBlockEntityRenderer extends BlockEntityRenderer {
 		}
 	}
 
-	public void bindSkin(ArmorStandBlockEntity entity) {
+	public String getSkin(ArmorStandBlockEntity entity) {
 		switch(entity.skin) {
 			case 1:
-				this.bindTexture("/title/black.png");
-				break;
+				return "/title/black.png";
 			case 2:
-				this.bindTexture("/mob/zombie.png");
-				break;
+				return "/mob/zombie.png";
 			case 3:
-				this.bindTexture("/assets/armor_stand/armor_stand.png");
-				break;
+				return "/assets/armor_stand/armor_stand.png";
 			default:
-				this.bindTexture("/mob/char.png");
+				return "/mob/char.png";
 		}
 	}
 

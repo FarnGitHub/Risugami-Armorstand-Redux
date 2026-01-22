@@ -5,23 +5,18 @@ import farn.armor_stand.block.entity.ArmorStandBlockEntity;
 import farn.armor_stand.block.entity.ArmorStandBlockEntityRenderer;
 import farn.armor_stand.packet.ArmorStandChangeSkinPacket;
 import farn.armor_stand.packet.ArmorStandEntityUpdatePacket;
-import farn.armor_stand.screen.ArmorStandScreen;
+import farn.armor_stand.screen.ArmorStandGuiHandler;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.loader.api.FabricLoader;
 import net.mine_diver.unsafeevents.listener.EventListener;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.Inventory;
 import net.modificationstation.stationapi.api.client.event.block.entity.BlockEntityRendererRegisterEvent;
 import net.modificationstation.stationapi.api.client.gui.screen.GuiHandler;
 import net.modificationstation.stationapi.api.event.block.entity.BlockEntityRegisterEvent;
 import net.modificationstation.stationapi.api.event.network.packet.PacketRegisterEvent;
 import net.modificationstation.stationapi.api.event.registry.BlockRegistryEvent;
 import net.modificationstation.stationapi.api.event.registry.GuiHandlerRegistryEvent;
-import net.modificationstation.stationapi.api.network.packet.MessagePacket;
 import net.modificationstation.stationapi.api.registry.PacketTypeRegistry;
 import net.modificationstation.stationapi.api.registry.Registry;
 import net.modificationstation.stationapi.api.util.Namespace;
@@ -40,21 +35,7 @@ public class ArmorStandStationAPI {
 
     @EventListener
     public void registerArmorStandUI(GuiHandlerRegistryEvent event) {
-        event.register(NAMESPACE.id("armor_stand_gui"), new GuiHandler(new GuiHandler.ScreenFactory() {
-            @Override
-            public Screen create(PlayerEntity player, Inventory inventory, MessagePacket packet) {
-                if(inventory instanceof ArmorStandBlockEntity armorStandBlockEntity) {
-                    armorStandBlockEntity.skin = packet.bytes[0];
-                    return new ArmorStandScreen(player.inventory, armorStandBlockEntity);
-                }
-                return null;
-            }
-        }, new GuiHandler.InventoryFactory() {
-            @Override
-            public Inventory create() {
-                return new ArmorStandBlockEntity();
-            }
-        }));
+        event.register(NAMESPACE.id("armor_stand_gui"), new GuiHandler(ArmorStandGuiHandler.screen, ArmorStandGuiHandler.inventory));
     }
 
     @EventListener

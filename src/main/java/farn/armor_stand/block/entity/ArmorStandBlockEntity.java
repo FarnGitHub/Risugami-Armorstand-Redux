@@ -3,6 +3,7 @@ package farn.armor_stand.block.entity;
 import farn.armor_stand.packet.ArmorStandEntityUpdatePacket;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
@@ -14,7 +15,8 @@ import net.minecraft.network.packet.Packet;
 public class ArmorStandBlockEntity extends BlockEntity implements Inventory {
 	public ItemStack[] items = new ItemStack[5];
 	public byte skin = 3;
-	private boolean init = false;
+	private static final boolean isServer = FabricLoader.getInstance().getEnvironmentType().equals(EnvType.SERVER);
+	private boolean needInit = true;
 
 	public int size() {
 		return this.items.length;
@@ -22,8 +24,8 @@ public class ArmorStandBlockEntity extends BlockEntity implements Inventory {
 
 	public void tick() {
 		super.tick();
-		if(!init) {
-			init = true;
+		if(isServer && needInit) {
+			needInit = false;
 			markDirty();
 		}
 	}
@@ -101,7 +103,7 @@ public class ArmorStandBlockEntity extends BlockEntity implements Inventory {
 		}
 
 		nbt.put("Items", var2);
-		nbt.putByte("Skin", (byte)this.skin);
+		nbt.putByte("Skin", this.skin);
 	}
 
 	public int getInventoryStackLimit() {

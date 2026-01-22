@@ -2,17 +2,14 @@
   "schemaVersion": 1,
   "id": "armor_stand",
   "version": "${version}",
-
-  "name": "Risugami's Armor Stand",
-  "description": "",
+  "name": "Risugami's Armor Stand Redux",
+  "description": "A Modified version of Risugami's Armor Stand mod",
   "authors": [
     "farnfarn02",
     "Risugami"
   ],
-
   "license": "MIT",
   "icon": "assets/armor_stand/icon.png",
-
   "environment": "*",
   "entrypoints": {
     "stationapi:event_bus": [
