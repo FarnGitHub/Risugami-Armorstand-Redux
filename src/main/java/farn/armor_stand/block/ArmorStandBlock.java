@@ -24,16 +24,17 @@ import java.util.function.Consumer;
 
 public class ArmorStandBlock extends TemplateBlockWithEntity {
 
-	public ArmorStandBlock(Identifier identifier, Material var2) {
-		super(identifier, 1, var2);
+	public ArmorStandBlock(Identifier identifier, Material mat) {
+		super(identifier, 1, mat);
 		this.setBoundingBox(0.1F, 0.0F, 0.1F, 0.9F, 0.1F, 0.9F);
 		this.textureId = Block.STONE.textureId;
 	}
 
-	public void neighborUpdate(World var1, int var2, int var3, int var4, int var5) {
-		if(!var1.method_1783(var2, var3 - 1, var4)) {
-			this.dropStacks(var1, var2, var3, var4, var1.getBlockMeta(var2, var3, var4));
-			var1.setBlock(var2, var3, var4, 0);
+	public void neighborUpdate(World world, int x, int y, int z, int id) {
+		if(!world.method_1783(x, y - 1, z)) {
+			this.dropStacks(world, x, y, z, world.getBlockMeta(x, y, z));
+			this.onBreak(world,x,y,z);
+			world.setBlock(x, y, z, 0);
 		}
 
 	}
@@ -52,14 +53,20 @@ public class ArmorStandBlock extends TemplateBlockWithEntity {
 		this.setBoundingBox(0.1F, 0.0F, 0.1F, 0.9F, 0.1F, 0.9F);
 	}
 
-	public void onPlaced(World var1, int var2, int var3, int var4, LivingEntity var5) {
-		byte var6 = (byte)(MathHelper.floor((double)((var5.yaw + 180.0F) * 16.0F / 360.0F) + 0.5D) & 15);
-		var1.setBlockMeta(var2, var3, var4, var6);
+	public void onPlaced(World world, int x, int y, int z, LivingEntity entity) {
+		byte var6 = (byte)(MathHelper.floor((double)((entity.yaw + 180.0F) * 16.0F / 360.0F) + 0.5D) & 15);
+		world.setBlockMeta(x, y, z, var6);
 	}
 
-	public boolean onUse(World world, int x, int y, int z, PlayerEntity var5) {
+	public boolean onUse(World world, int x, int y, int z, PlayerEntity player) {
 		if(!world.isRemote && world.getBlockEntity(x, y, z) instanceof ArmorStandBlockEntity armorEntity) {
-			GuiHelper.openGUI(var5, ArmorStandStationAPI.NAMESPACE.id("armor_stand_gui"), armorEntity, new ArmorStandScreenHandler(var5.inventory, armorEntity), new Consumer<MessagePacket>() {
+			GuiHelper.openGUI(
+					player,
+					ArmorStandStationAPI.NAMESPACE.id("armor_stand_gui"),
+					armorEntity,
+					new ArmorStandScreenHandler(player.inventory, armorEntity),
+					new Consumer<MessagePacket>()
+			{
 				@Override
 				public void accept(MessagePacket messagePacket) {
 					messagePacket.bytes = new byte[1];
@@ -70,36 +77,36 @@ public class ArmorStandBlock extends TemplateBlockWithEntity {
 		return true;
 	}
 
-	public void onBreak(World var1, int var2, int var3, int var4) {
-		if(!var1.isRemote) {
-			Inventory var5 = (Inventory)var1.getBlockEntity(var2, var3, var4);
+	public void onBreak(World world, int x, int y, int z) {
+		if(!world.isRemote) {
+			Inventory var5 = (Inventory)world.getBlockEntity(x, y, z);
 
-			for(int var6 = 0; var6 < var5.size(); ++var6) {
-				ItemStack var7 = var5.getStack(var6);
-				if(var7 != null) {
-					float var8 = var1.random.nextFloat() * 0.8F + 0.1F;
-					float var9 = var1.random.nextFloat() * 0.8F + 0.1F;
-					float var10 = var1.random.nextFloat() * 0.8F + 0.1F;
+			for(int index = 0; index < var5.size(); ++index) {
+				ItemStack stack = var5.getStack(index);
+				if(stack != null) {
+					float offsetX = world.random.nextFloat() * 0.8F + 0.1F;
+					float offsetY = world.random.nextFloat() * 0.8F + 0.1F;
+					float offsetZ = world.random.nextFloat() * 0.8F + 0.1F;
 
-					while(var7.count > 0) {
-						int var11 = var1.random.nextInt(21) + 10;
-						if(var11 > var7.count) {
-							var11 = var7.count;
+					while(stack.count > 0) {
+						int count = world.random.nextInt(21) + 10;
+						if(count > stack.count) {
+							count = stack.count;
 						}
 
-						var7.count -= var11;
-						ItemEntity var12 = new ItemEntity(var1, (double)((float)var2 + var8), (double)((float)var3 + var9), (double)((float)var4 + var10), new ItemStack(var7.itemId, var11, var7.getDamage()));
-						float var13 = 0.05F;
-						var12.velocityX = (double)((float)var1.random.nextGaussian() * var13);
-						var12.velocityY = (double)((float)var1.random.nextGaussian() * var13 + 0.2F);
-						var12.velocityZ = (double)((float)var1.random.nextGaussian() * var13);
-						var1.spawnEntity(var12);
+						stack.count -= count;
+						ItemEntity item = new ItemEntity(world, x + offsetX, y + offsetY, z + offsetZ, new ItemStack(stack.itemId, count, stack.getDamage()));
+						float extraOffset = 0.05F;
+						item.velocityX = (world.random.nextGaussian() * extraOffset);
+						item.velocityY = (world.random.nextGaussian() * extraOffset + 0.2F);
+						item.velocityZ = (world.random.nextGaussian() * extraOffset);
+						world.spawnEntity(item);
 					}
 				}
 			}
 		}
 
-		super.onBreak(var1, var2, var3, var4);
+		super.onBreak(world, x, y, z);
 	}
 
 	protected BlockEntity createBlockEntity() {

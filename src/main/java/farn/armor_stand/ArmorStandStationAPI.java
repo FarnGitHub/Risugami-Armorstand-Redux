@@ -8,6 +8,7 @@ import farn.armor_stand.packet.ArmorStandEntityUpdatePacket;
 import farn.armor_stand.screen.ArmorStandGuiHandler;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.loader.api.FabricLoader;
 import net.mine_diver.unsafeevents.listener.EventListener;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -32,6 +33,9 @@ public class ArmorStandStationAPI {
     public static Logger LOGGER = Null.get();
 
     public static Block armorStand;
+
+    public static final boolean isServer = FabricLoader.getInstance().getEnvironmentType().equals(EnvType.SERVER);
+
 
     @EventListener
     public void registerArmorStandUI(GuiHandlerRegistryEvent event) {

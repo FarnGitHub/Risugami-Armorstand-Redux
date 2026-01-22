@@ -8,11 +8,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.screen.slot.Slot;
 
 public class ArmorStandSlot extends Slot {
-	private final int armorSlot;
+	public final int armorSlot;
 
-	public ArmorStandSlot(Inventory var1, int var2, int var3, int var4, int var5) {
-		super(var1, var2, var3, var4);
-		armorSlot = var5;
+	public ArmorStandSlot(Inventory inv, int index, int x, int y, int armorSlot) {
+		super(inv, index, x, y);
+		this.armorSlot = armorSlot;
 	}
 
 	public boolean canInsert(ItemStack itemStack1) {

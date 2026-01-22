@@ -1,9 +1,9 @@
 package farn.armor_stand.block.entity;
 
+import farn.armor_stand.ArmorStandStationAPI;
 import farn.armor_stand.packet.ArmorStandEntityUpdatePacket;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
@@ -15,8 +15,7 @@ import net.minecraft.network.packet.Packet;
 public class ArmorStandBlockEntity extends BlockEntity implements Inventory {
 	public ItemStack[] items = new ItemStack[5];
 	public byte skin = 3;
-	private static final boolean isServer = FabricLoader.getInstance().getEnvironmentType().equals(EnvType.SERVER);
-	private boolean needInit = true;
+	private boolean needInit = ArmorStandStationAPI.isServer;
 
 	public int size() {
 		return this.items.length;
@@ -24,28 +23,28 @@ public class ArmorStandBlockEntity extends BlockEntity implements Inventory {
 
 	public void tick() {
 		super.tick();
-		if(isServer && needInit) {
+		if(needInit) {
 			needInit = false;
 			markDirty();
 		}
 	}
 
-	public ItemStack getStack(int var1) {
-		return this.items[var1];
+	public ItemStack getStack(int slot) {
+		return this.items[slot];
 	}
 
-	public ItemStack removeStack(int var1, int var2) {
-		if(this.items[var1] != null) {
+	public ItemStack removeStack(int slot, int stack) {
+		if(this.items[slot] != null) {
 			ItemStack var3;
-			if(this.items[var1].count <= var2) {
-				var3 = this.items[var1];
-				this.items[var1] = null;
+			if(this.items[slot].count <= stack) {
+				var3 = this.items[slot];
+				this.items[slot] = null;
 				this.markDirty();
 				return var3;
 			} else {
-				var3 = this.items[var1].split(var2);
-				if(this.items[var1].count == 0) {
-					this.items[var1] = null;
+				var3 = this.items[slot].split(stack);
+				if(this.items[slot].count == 0) {
+					this.items[slot] = null;
 				}
 
 				this.markDirty();
@@ -56,10 +55,10 @@ public class ArmorStandBlockEntity extends BlockEntity implements Inventory {
 		}
 	}
 
-	public void setStack(int var1, ItemStack var2) {
-		this.items[var1] = var2;
-		if(var2 != null && var2.count > this.getInventoryStackLimit()) {
-			var2.count = this.getInventoryStackLimit();
+	public void setStack(int slot, ItemStack stack) {
+		this.items[slot] = stack;
+		if(stack != null && stack.count > this.getInventoryStackLimit()) {
+			stack.count = this.getInventoryStackLimit();
 		}
 
 		this.markDirty();
