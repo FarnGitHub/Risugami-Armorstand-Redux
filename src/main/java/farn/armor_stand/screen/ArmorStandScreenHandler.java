@@ -49,19 +49,19 @@ public class ArmorStandScreenHandler extends ScreenHandler {
 		if (var3 != null && var3.hasStack()) {
 			ItemStack var4 = var3.getStack();
 			var2 = var4.copy();
-			if(slot >= 5 && slot < 31) {
+			if(slot >= 5 && slot <= 31) {
 				int armorSlot = getValidSlotForArmor(var3);
 				if(armorSlot >= 0) {
 					this.insertItem(var4, armorSlot, armorSlot + 1, false);
 				} else {
-					this.insertItem(var4, 31, 41, false);
+					this.insertItem(var4, 32, 41, false);
 				}
-			} else if(slot >= 31 && slot <= 41) {
+			} else if(slot >= 32 && slot <= 41) {
 				int armorSlot = getValidSlotForArmor(var3);
 				if(armorSlot >= 0) {
 					this.insertItem(var4, armorSlot, armorSlot + 1, false);
 				} else {
-					this.insertItem(var4, 5, 30, false);
+					this.insertItem(var4, 5, 31, false);
 				}
 			} else {
 				this.insertItem(var4, 5, 41, false);
