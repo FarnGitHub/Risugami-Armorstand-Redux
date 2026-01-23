@@ -12,14 +12,18 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.mine_diver.unsafeevents.listener.EventListener;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.item.Item;
 import net.modificationstation.stationapi.api.client.event.block.entity.BlockEntityRendererRegisterEvent;
+import net.modificationstation.stationapi.api.client.event.texture.TextureRegisterEvent;
 import net.modificationstation.stationapi.api.client.gui.screen.GuiHandler;
 import net.modificationstation.stationapi.api.event.block.entity.BlockEntityRegisterEvent;
 import net.modificationstation.stationapi.api.event.network.packet.PacketRegisterEvent;
 import net.modificationstation.stationapi.api.event.registry.BlockRegistryEvent;
 import net.modificationstation.stationapi.api.event.registry.GuiHandlerRegistryEvent;
+import net.modificationstation.stationapi.api.event.registry.ItemRegistryEvent;
 import net.modificationstation.stationapi.api.registry.PacketTypeRegistry;
 import net.modificationstation.stationapi.api.registry.Registry;
+import net.modificationstation.stationapi.api.template.item.TemplateSecondaryBlockItem;
 import net.modificationstation.stationapi.api.util.Namespace;
 import net.modificationstation.stationapi.api.util.Null;
 import net.modificationstation.stationapi.api.mod.entrypoint.Entrypoint;
@@ -32,7 +36,7 @@ public class ArmorStandStationAPI {
     @Entrypoint.Logger
     public static Logger LOGGER = Null.get();
 
-    public static Block armorStand;
+    public static ArmorStandBlock armorStand;
 
     public static final boolean isServer = FabricLoader.getInstance().getEnvironmentType().equals(EnvType.SERVER);
 
@@ -44,7 +48,10 @@ public class ArmorStandStationAPI {
 
     @EventListener
     public void registerBlock(BlockRegistryEvent event) {
-        armorStand = new ArmorStandBlock(NAMESPACE.id("armor_stand_block"), Material.WOOD).setTranslationKey(NAMESPACE, "armor_stand").setSoundGroup(Block.STONE_SOUND_GROUP).setHardness(0.1F);;
+        armorStand = new ArmorStandBlock(NAMESPACE.id("armor_stand_block"), Material.WOOD);
+        armorStand.setTranslationKey(NAMESPACE, "armor_stand_block");
+        armorStand.setSoundGroup(Block.STONE_SOUND_GROUP);
+        armorStand.setHardness(0.1F);
     }
 
     @EventListener
