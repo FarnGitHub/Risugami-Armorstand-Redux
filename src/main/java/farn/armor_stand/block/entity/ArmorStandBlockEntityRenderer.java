@@ -1,11 +1,9 @@
 package farn.armor_stand.block.entity;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import farn.armor_stand.skin.*;
 import farn.armor_stand.skin.player.PlayerCache;
-import farn.armor_stand.skin.player.BipedModelCreator;
 import farn.armor_stand.skin.player.FakePlayer;
+import farn.armor_stand.skin.player.PlayerCacheHandler;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -95,7 +93,9 @@ public class ArmorStandBlockEntityRenderer extends BlockEntityRenderer {
 			if(fake.skinUrl.startsWith("http://s3.amazonaws.com/MinecraftSkins/") && fake.skinUrl.endsWith(".png")) {
 				this.dispatcher.textureManager.downloadImage(fake.skinUrl, new SkinImageProcessor());
 			}
-			return new PlayerCache(fake.skinUrl, cloneBipedEntity(getPlayerRender(fake).bipedModel));
+			return new PlayerCache(fake.skinUrl,
+					PlayerCacheHandler.cloneBipedEntity(
+							PlayerCacheHandler.getPlayerRender(fake).bipedModel));
 		});
 	}
 
@@ -205,17 +205,6 @@ public class ArmorStandBlockEntityRenderer extends BlockEntityRenderer {
 		EntityRenderDispatcher.INSTANCE.heldItemRenderer.renderItem(dummyEntity, stack);
 		GL11.glEnable(GL11.GL_CULL_FACE);
 		GL11.glPopMatrix();
-	}
-
-
-	public static BipedEntityModel cloneBipedEntity(BipedEntityModel t) {
-		Gson gson = new GsonBuilder().registerTypeAdapter(BipedEntityModel.class, new BipedModelCreator()).create();
-		String json = gson.toJson(t);
-		return gson.fromJson(json, t.getClass());
-	}
-
-	public static PlayerEntityRenderer getPlayerRender(FakePlayer player) {
-		return (PlayerEntityRenderer) EntityRenderDispatcher.INSTANCE.get(player);
 	}
 
 }

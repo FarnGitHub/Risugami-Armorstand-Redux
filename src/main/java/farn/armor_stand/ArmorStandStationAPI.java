@@ -3,13 +3,11 @@ package farn.armor_stand;
 import farn.armor_stand.block.ArmorStandBlock;
 import farn.armor_stand.block.entity.ArmorStandBlockEntity;
 import farn.armor_stand.block.entity.ArmorStandBlockEntityRenderer;
-import farn.armor_stand.config.ArmorStandGlassConfig;
 import farn.armor_stand.network.PacketC2SChangeArmorStandSkin;
 import farn.armor_stand.network.PacketS2CArmorStandEntityUpdate;
 import farn.armor_stand.screen.handler.ArmorStandGuiHandler;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.loader.api.FabricLoader;
 import net.mine_diver.unsafeevents.listener.EventListener;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -34,8 +32,6 @@ public class ArmorStandStationAPI {
     public static Logger LOGGER = Null.get();
 
     public static ArmorStandBlock armorStand;
-
-    public static boolean GCAPILoad = false;
 
     @EventListener
     public void registerArmorStandUI(GuiHandlerRegistryEvent event) {
@@ -65,13 +61,6 @@ public class ArmorStandStationAPI {
     public void registerPacket(PacketRegisterEvent event) {
         Registry.register(PacketTypeRegistry.INSTANCE,  NAMESPACE.id("armor_stand_update_packet"), PacketS2CArmorStandEntityUpdate.TYPE);
         Registry.register(PacketTypeRegistry.INSTANCE,  NAMESPACE.id("armor_stand_skin_packet"), PacketC2SChangeArmorStandSkin.TYPE);
-    }
-
-    public static String getBaseSkinUrl() {
-        if(GCAPILoad) {
-            return ArmorStandGlassConfig.instance.playerSkinUrl;
-        }
-        return "http://resourceproxy.pymcl.net/skinapi.php?user=%s.png";
     }
 
 }
