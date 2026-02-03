@@ -1,7 +1,7 @@
 package farn.armor_stand.block.entity;
 
-import farn.armor_stand.ArmorStandStationAPI;
-import farn.armor_stand.packet.ArmorStandEntityUpdatePacket;
+import farn.armor_stand.network.PacketS2CArmorStandEntityUpdate;
+import farn.armor_stand.network.ServerUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.entity.BlockEntity;
@@ -14,25 +14,32 @@ import net.minecraft.network.packet.Packet;
 
 public class ArmorStandBlockEntity extends BlockEntity implements Inventory {
 	public ItemStack[] items = new ItemStack[5];
-	public byte skin = 3;
-	private boolean needInit = ArmorStandStationAPI.isServer;
+	public byte skin = 0;
+	public String placer = "";
 
+	private int tick = 0;
+
+	@Override
 	public int size() {
 		return this.items.length;
 	}
 
+	@Environment(EnvType.SERVER)
+	@Override
 	public void tick() {
 		super.tick();
-		if(needInit) {
-			needInit = false;
-			markDirty();
+		if(++tick >= 20){
+			tick = 0;
+			ServerUtil.sendUpdateToPlayer(this);
 		}
 	}
 
+	@Override
 	public ItemStack getStack(int slot) {
 		return this.items[slot];
 	}
 
+	@Override
 	public ItemStack removeStack(int slot, int stack) {
 		if(this.items[slot] != null) {
 			ItemStack var3;
@@ -55,15 +62,17 @@ public class ArmorStandBlockEntity extends BlockEntity implements Inventory {
 		}
 	}
 
+	@Override
 	public void setStack(int slot, ItemStack stack) {
 		this.items[slot] = stack;
-		if(stack != null && stack.count > this.getInventoryStackLimit()) {
-			stack.count = this.getInventoryStackLimit();
+		if(stack != null && stack.count > this.getMaxCountPerStack()) {
+			stack.count = this.getMaxCountPerStack();
 		}
 
 		this.markDirty();
 	}
 
+	@Override
 	public String getName() {
 		return "Armor Stand";
 	}
@@ -73,11 +82,13 @@ public class ArmorStandBlockEntity extends BlockEntity implements Inventory {
 		return 1;
 	}
 
+	@Override
 	public void readNbt(NbtCompound nbt) {
 		super.readNbt(nbt);
 		NbtList var2 = nbt.getList("Items");
 		this.items = new ItemStack[this.size()];
 		this.skin = nbt.getByte("Skin");
+		this.placer = nbt.getString("Placer");
 
 		for(int var3 = 0; var3 < var2.size(); ++var3) {
 			NbtCompound var4 = (NbtCompound)var2.get(var3);
@@ -88,6 +99,7 @@ public class ArmorStandBlockEntity extends BlockEntity implements Inventory {
 		}
 	}
 
+	@Override
 	public void writeNbt(NbtCompound nbt) {
 		super.writeNbt(nbt);
 		NbtList var2 = new NbtList();
@@ -103,18 +115,25 @@ public class ArmorStandBlockEntity extends BlockEntity implements Inventory {
 
 		nbt.put("Items", var2);
 		nbt.putByte("Skin", this.skin);
-	}
-
-	public int getInventoryStackLimit() {
-		return 1;
+		nbt.putString("Placer", this.placer);
 	}
 
 	@Environment(EnvType.SERVER)
+	@Override
 	public Packet createUpdatePacket() {
-		return new ArmorStandEntityUpdatePacket(this);
+		return new PacketS2CArmorStandEntityUpdate(this);
 	}
 
+	@Override
 	public boolean canPlayerUse(PlayerEntity var1) {
-		return var1.getDistance((double)this.x + 0.5D, (double)this.y + 0.5D, (double)this.z + 0.5D) <= 64.0D;
+		return this.world.getBlockEntity(this.x, this.y, this.z) == this && var1.getDistance((double)this.x + 0.5D, (double)this.y + 0.5D, (double)this.z + 0.5D) <= 64.0D;
 	}
+
+	@Environment(EnvType.SERVER)
+	@Override
+	public void markDirty() {
+		super.markDirty();
+		ServerUtil.sendUpdateToPlayer(this);
+	}
+
 }

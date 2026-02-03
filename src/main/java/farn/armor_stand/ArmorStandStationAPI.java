@@ -3,27 +3,24 @@ package farn.armor_stand;
 import farn.armor_stand.block.ArmorStandBlock;
 import farn.armor_stand.block.entity.ArmorStandBlockEntity;
 import farn.armor_stand.block.entity.ArmorStandBlockEntityRenderer;
-import farn.armor_stand.packet.ArmorStandChangeSkinPacket;
-import farn.armor_stand.packet.ArmorStandEntityUpdatePacket;
-import farn.armor_stand.screen.ArmorStandGuiHandler;
+import farn.armor_stand.config.ArmorStandGlassConfig;
+import farn.armor_stand.network.PacketC2SChangeArmorStandSkin;
+import farn.armor_stand.network.PacketS2CArmorStandEntityUpdate;
+import farn.armor_stand.screen.handler.ArmorStandGuiHandler;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
 import net.mine_diver.unsafeevents.listener.EventListener;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.item.Item;
 import net.modificationstation.stationapi.api.client.event.block.entity.BlockEntityRendererRegisterEvent;
-import net.modificationstation.stationapi.api.client.event.texture.TextureRegisterEvent;
 import net.modificationstation.stationapi.api.client.gui.screen.GuiHandler;
 import net.modificationstation.stationapi.api.event.block.entity.BlockEntityRegisterEvent;
 import net.modificationstation.stationapi.api.event.network.packet.PacketRegisterEvent;
 import net.modificationstation.stationapi.api.event.registry.BlockRegistryEvent;
 import net.modificationstation.stationapi.api.event.registry.GuiHandlerRegistryEvent;
-import net.modificationstation.stationapi.api.event.registry.ItemRegistryEvent;
 import net.modificationstation.stationapi.api.registry.PacketTypeRegistry;
 import net.modificationstation.stationapi.api.registry.Registry;
-import net.modificationstation.stationapi.api.template.item.TemplateSecondaryBlockItem;
 import net.modificationstation.stationapi.api.util.Namespace;
 import net.modificationstation.stationapi.api.util.Null;
 import net.modificationstation.stationapi.api.mod.entrypoint.Entrypoint;
@@ -38,8 +35,7 @@ public class ArmorStandStationAPI {
 
     public static ArmorStandBlock armorStand;
 
-    public static final boolean isServer = FabricLoader.getInstance().getEnvironmentType().equals(EnvType.SERVER);
-
+    public static boolean GCAPILoad = false;
 
     @EventListener
     public void registerArmorStandUI(GuiHandlerRegistryEvent event) {
@@ -67,8 +63,15 @@ public class ArmorStandStationAPI {
 
     @EventListener
     public void registerPacket(PacketRegisterEvent event) {
-        Registry.register(PacketTypeRegistry.INSTANCE,  NAMESPACE.id("armor_stand_update_packet"), ArmorStandEntityUpdatePacket.TYPE);
-        Registry.register(PacketTypeRegistry.INSTANCE,  NAMESPACE.id("armor_stand_skin_packet"), ArmorStandChangeSkinPacket.TYPE);
+        Registry.register(PacketTypeRegistry.INSTANCE,  NAMESPACE.id("armor_stand_update_packet"), PacketS2CArmorStandEntityUpdate.TYPE);
+        Registry.register(PacketTypeRegistry.INSTANCE,  NAMESPACE.id("armor_stand_skin_packet"), PacketC2SChangeArmorStandSkin.TYPE);
+    }
+
+    public static String getBaseSkinUrl() {
+        if(GCAPILoad) {
+            return ArmorStandGlassConfig.instance.playerSkinUrl;
+        }
+        return "http://resourceproxy.pymcl.net/skinapi.php?user=%s.png";
     }
 
 }

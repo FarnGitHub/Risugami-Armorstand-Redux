@@ -1,14 +1,22 @@
 package farn.armor_stand.block.entity;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import farn.armor_stand.skin.*;
+import farn.armor_stand.skin.player.PlayerCache;
+import farn.armor_stand.skin.player.BipedModelCreator;
+import farn.armor_stand.skin.player.FakePlayer;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.render.block.BlockRenderManager;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.render.entity.PlayerEntityRenderer;
 import net.minecraft.client.render.entity.model.BipedEntityModel;
+import net.minecraft.client.texture.SkinImageProcessor;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.BlockItem;
@@ -25,122 +33,146 @@ import static org.lwjgl.opengl.GL11.glScalef;
 
 @Environment(EnvType.CLIENT)
 public class ArmorStandBlockEntityRenderer extends BlockEntityRenderer {
-	private BipedEntityModel outer = getBipedModel(1.0F);
-	private BipedEntityModel inner = getBipedModel(0.5F);
-	private BipedEntityModel body = getBipedModel(0.5F);
-	private static String[] armorArray = PlayerEntityRenderer.armorTextureNames;
-	private static final Map<Identifier, String[]> STATIONAPI$ARMOR_CACHE = new Reference2ObjectOpenHashMap<>();
-	private LivingEntity dummyEntity;
+	private final BipedEntityModel armor_outer = new BipedEntityModel(1.0F);
+	private final BipedEntityModel armor_inner = new BipedEntityModel(0.5F);
+	private final BipedEntityModel body = new BipedEntityModel(0.0F);
+	private static final Map<Identifier, String[]> armorCache = new Reference2ObjectOpenHashMap<>();
+	private static final Map<String, PlayerCache> plrCache = new Reference2ObjectOpenHashMap<>();
+	private LivingEntity dummy;
 
 	public void render(BlockEntity blockEntity, double x, double y, double z, float var8) {
 		if (blockEntity instanceof ArmorStandBlockEntity tileEntityArmor) {
-			if (armorArray != null) {
-				if(dummyEntity == null || tileEntityArmor.world != dummyEntity.world) {
-					dummyEntity = new LivingEntityDummy(tileEntityArmor.world);
-				}
-				glPushMatrix();
-				float brightness = tileEntityArmor.world.method_1782(blockEntity.x, blockEntity.y, blockEntity.z);
-				dummyEntity.minBrightness = brightness;
-				dummyEntity.setPosition(x,y,z);
-				glTranslatef((float) x + 0.5F, (float) y + 1.48F, (float) z + 0.5F);
-				glScalef(0.9F, -0.9F, -0.9F);
-				float var13 = (float) (tileEntityArmor.getPushedBlockData() * 360 / 16);
-				glRotatef(var13, 0.0F, 1.0F, 0.0F);
+			if(dummy == null) {
+				dummy = new LivingEntity(Minecraft.INSTANCE.world) {
+				};
+			}
+			if(dummy.world != tileEntityArmor.world) {
+				dummy.setWorld(tileEntityArmor.world);
+			}
+			glPushMatrix();
+			float brightness = tileEntityArmor.world.method_1782(blockEntity.x, blockEntity.y, blockEntity.z);
+			dummy.minBrightness = brightness;
+			dummy.setPosition(x,y,z);
+			glTranslatef((float) x + 0.5F, (float) y + 1.48F, (float) z + 0.5F);
+			glScalef(0.9F, -0.9F, -0.9F);
+			float var13 = (float) (tileEntityArmor.getPushedBlockData() * 360 / 16);
+			glRotatef(var13, 0.0F, 1.0F, 0.0F);
 
-				for (int index = -1; index < 5; ++index) {
-					if (index == -1) {
-						this.bindTexture(getSkin(tileEntityArmor));
-						glPushMatrix();
-						renderBipedEntityModel(body);
-						glPopMatrix();
-					} else {
-						ItemStack stack = tileEntityArmor.getStack(index);
-						if (stack != null) {
-							if(index == 0 && stack.getItem() instanceof BlockItem itemBlock) {
-								GL11.glPushMatrix();
-								this.body.head.transform(0.0625F);
-								if (BlockRenderManager.isSideLit(itemBlock.getBlock().getRenderType())) {
-									float offset = 0.625F;
-									GL11.glTranslatef(0.0F, -0.25F, 0.0F);
-									GL11.glRotatef(180.0F, 0.0F, 1.0F, 0.0F);
-									GL11.glScalef(offset, -offset, offset);
-								}
-
-								GL11.glDisable(GL11.GL_CULL_FACE);
-								glColor3f(brightness, brightness, brightness);
-								EntityRenderDispatcher.INSTANCE.heldItemRenderer.renderItem(dummyEntity, stack);
-								GL11.glEnable(GL11.GL_CULL_FACE);
-								GL11.glPopMatrix();
-							} else if(stack.getItem() instanceof ArmorItem armor) {
-								int equipSlot = armor.equipmentSlot;
-								this.bindArmorTexture(armor, armor.textureIndex, equipSlot);
-								glPushMatrix();
-								BipedEntityModel currentModel = equipSlot == 2 ? this.inner : this.outer;
-								currentModel.head.visible = equipSlot == 0;
-								currentModel.hat.visible = equipSlot == 0;
-								currentModel.body.visible = equipSlot == 1 || equipSlot == 2;
-								currentModel.rightArm.visible = equipSlot == 1;
-								currentModel.leftArm.visible = equipSlot == 1;
-								currentModel.rightLeg.visible = equipSlot == 2 || equipSlot == 3;
-								currentModel.leftLeg.visible = equipSlot == 2 || equipSlot == 3;
-								glColor3f(brightness, brightness, brightness);
-								renderBipedEntityModel(currentModel);
-								glPopMatrix();
-							} else if(index == 4) {
-								aresenicRenderHeldItem(stack);
-							}
+			for (int index = -1; index < 5; ++index) {
+				if (index == -1) {
+					renderArmorStandEntityModel(tileEntityArmor);
+				} else {
+					ItemStack stack = tileEntityArmor.getStack(index);
+					if (stack != null) {
+						if(index == 0 && stack.getItem() instanceof BlockItem itemBlock) {
+							renderPumpkinHead(itemBlock, brightness, stack, dummy);
+						} else if(stack.getItem() instanceof ArmorItem armor) {
+							renderArmor(armor, brightness);
+						} else if(index == 4) {
+							renderHeldItem(body, stack, dummy);
 						}
 					}
 				}
-
-				glDepthMask(true);
-				glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-				glPopMatrix();
 			}
+
+			glDepthMask(true);
+			glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+			glPopMatrix();
 		}
 	}
 
-	public String getSkin(ArmorStandBlockEntity entity) {
-		switch(entity.skin) {
-			case 1:
-				return "/title/black.png";
-			case 2:
-				return "/mob/zombie.png";
-			case 3:
-				return "/assets/armor_stand/armor_stand.png";
-			default:
-				return "/mob/char.png";
-		}
-	}
-
-	public BipedEntityModel getBipedModel(float scale) {
-		return new BipedEntityModel(scale);
-	}
-
-	private void renderBipedEntityModel(BipedEntityModel currentModel) {
+	private void renderNormalModel(BipedEntityModel currentModel) {
 		currentModel.body.pivotZ = 0.01F;
 		currentModel.rightLeg.roll = 0.1F;
 		currentModel.leftLeg.roll = -0.1F;
 		currentModel.render(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 1.0F / 16.0F);
 	}
 
+	private PlayerCache getPlayerCache(String plr) {
+		if(plr.isEmpty()) return new PlayerCache("", body);
+		return plrCache.computeIfAbsent(plr, pl -> {
+			FakePlayer fake = new FakePlayer(plr);
+			if(fake.skinUrl.startsWith("http://s3.amazonaws.com/MinecraftSkins/") && fake.skinUrl.endsWith(".png")) {
+				this.dispatcher.textureManager.downloadImage(fake.skinUrl, new SkinImageProcessor());
+			}
+			return new PlayerCache(fake.skinUrl, cloneBipedEntity(getPlayerRender(fake).bipedModel));
+		});
+	}
+
+	private void renderArmorStandEntityModel(ArmorStandBlockEntity tileEntityArmor) {
+		if(ArmorStandSkins.isPlayerSkin(tileEntityArmor.skin)) {
+			PlayerCache cache = getPlayerCache(tileEntityArmor.placer);
+			BipedEntityModel plrBody = cache != null ? cache.model() : body;
+			String url = cache != null ? cache.url() : "";
+			bindSkinTexture(url);
+			glPushMatrix();
+			renderNormalModel(plrBody);
+			glPopMatrix();
+		} else {
+			this.bindTexture(ArmorStandSkins.getTexture(tileEntityArmor.skin));
+			glPushMatrix();
+			renderNormalModel(body);
+			glPopMatrix();
+		}
+	}
+
+	private void bindSkinTexture(String skin) {
+		this.dispatcher.textureManager.bindTexture(
+				this.dispatcher.textureManager.downloadTexture(skin
+						, "/mob/char.png"));
+	}
+
+	private void renderArmor(ArmorItem armor, float brightness) {
+		int equipSlot = armor.equipmentSlot;
+		this.bindArmorTexture(armor, armor.textureIndex, equipSlot);
+		glPushMatrix();
+		BipedEntityModel currentModel = equipSlot == 2 ? this.armor_inner : this.armor_outer;
+		currentModel.head.visible = equipSlot == 0;
+		currentModel.hat.visible = equipSlot == 0;
+		currentModel.body.visible = equipSlot == 1 || equipSlot == 2;
+		currentModel.rightArm.visible = equipSlot == 1;
+		currentModel.leftArm.visible = equipSlot == 1;
+		currentModel.rightLeg.visible = equipSlot == 2 || equipSlot == 3;
+		currentModel.leftLeg.visible = equipSlot == 2 || equipSlot == 3;
+		glColor3f(brightness, brightness, brightness);
+		renderNormalModel(currentModel);
+		glPopMatrix();
+	}
+
 	private void bindArmorTexture(ArmorItem armor, int textureIndex, int slot) {
 		if (armor instanceof ArmorTextureProvider provider) {
 			Identifier id = provider.getTexture(armor);
-			String[] textures = STATIONAPI$ARMOR_CACHE.computeIfAbsent(id, k -> new String[4]);
-			if (textures[textureIndex] == null) textures[textureIndex] = stationapi_getTexturePath(id, textureIndex);
+			String[] textures = armorCache.computeIfAbsent(id, k -> new String[4]);
+			if (textures[textureIndex] == null) textures[textureIndex] = getStationAPIArmor(id, textureIndex);
 			this.bindTexture(textures[textureIndex]);
 		}
-		else this.bindTexture("/armor/" + armorArray[textureIndex] + (slot == 2 ? "_2.png" : "_1.png"));
+		else this.bindTexture("/armor/" + PlayerEntityRenderer.armorTextureNames[textureIndex] + (slot == 2 ? "_2.png" : "_1.png"));
 	}
-	private String stationapi_getTexturePath(Identifier identifier, int armorIndex) {
+	private String getStationAPIArmor(Identifier identifier, int armorIndex) {
 		return "/assets/" + identifier.namespace + "/stationapi/textures/armor/" + identifier.path + (armorIndex == 2 ? "_2.png" : "_1.png");
 	}
 
-	public void aresenicRenderHeldItem(ItemStack stack) {
+	private void renderPumpkinHead(BlockItem itemBlock, float brightness, ItemStack stack, LivingEntity dummyEntity) {
+		GL11.glPushMatrix();
+		body.head.transform(0.0625F);
+		if (BlockRenderManager.isSideLit(itemBlock.getBlock().getRenderType())) {
+			float offset = 0.625F;
+			GL11.glTranslatef(0.0F, -0.25F, 0.0F);
+			GL11.glRotatef(180.0F, 0.0F, 1.0F, 0.0F);
+			GL11.glScalef(offset, -offset, offset);
+		}
+
+		GL11.glDisable(GL11.GL_CULL_FACE);
+		glColor3f(brightness, brightness, brightness);
+		EntityRenderDispatcher.INSTANCE.heldItemRenderer.renderItem(dummyEntity, stack);
+		GL11.glEnable(GL11.GL_CULL_FACE);
+		GL11.glPopMatrix();
+	}
+
+	public void renderHeldItem(BipedEntityModel body, ItemStack stack, LivingEntity dummyEntity) {
 		GL11.glPushMatrix();
 		GL11.glDisable(GL11.GL_CULL_FACE);
-		this.body.rightArm.transform(0.0625F);
+		body.rightArm.transform(0.0625F);
 		GL11.glTranslatef(-0.0625F, 0.4375F, 0.0625F);
 
 		if (stack.getItem() instanceof BlockItem blockItem && BlockRenderManager.isSideLit(blockItem.getBlock().getRenderType())) {
@@ -173,6 +205,17 @@ public class ArmorStandBlockEntityRenderer extends BlockEntityRenderer {
 		EntityRenderDispatcher.INSTANCE.heldItemRenderer.renderItem(dummyEntity, stack);
 		GL11.glEnable(GL11.GL_CULL_FACE);
 		GL11.glPopMatrix();
+	}
+
+
+	public static BipedEntityModel cloneBipedEntity(BipedEntityModel t) {
+		Gson gson = new GsonBuilder().registerTypeAdapter(BipedEntityModel.class, new BipedModelCreator()).create();
+		String json = gson.toJson(t);
+		return gson.fromJson(json, t.getClass());
+	}
+
+	public static PlayerEntityRenderer getPlayerRender(FakePlayer player) {
+		return (PlayerEntityRenderer) EntityRenderDispatcher.INSTANCE.get(player);
 	}
 
 }

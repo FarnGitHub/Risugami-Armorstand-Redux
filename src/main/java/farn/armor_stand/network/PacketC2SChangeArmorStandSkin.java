@@ -1,7 +1,7 @@
-package farn.armor_stand.packet;
+package farn.armor_stand.network;
 
 import farn.armor_stand.block.entity.ArmorStandBlockEntity;
-import farn.armor_stand.screen.ArmorStandScreenHandler;
+import farn.armor_stand.screen.handler.ArmorStandScreenHandler;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.entity.player.PlayerEntity;
@@ -16,17 +16,17 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class ArmorStandChangeSkinPacket extends Packet implements ManagedPacket<ArmorStandChangeSkinPacket> {
+public class PacketC2SChangeArmorStandSkin extends Packet implements ManagedPacket<PacketC2SChangeArmorStandSkin> {
 
     public byte skin;
 
-    public static final PacketType<ArmorStandChangeSkinPacket> TYPE = PacketType.builder(false, true, ArmorStandChangeSkinPacket::new).build();
+    public static final PacketType<PacketC2SChangeArmorStandSkin> TYPE = PacketType.builder(false, true, PacketC2SChangeArmorStandSkin::new).build();
 
-    public ArmorStandChangeSkinPacket() {
+    public PacketC2SChangeArmorStandSkin() {
     }
 
     @Environment(EnvType.CLIENT)
-    public ArmorStandChangeSkinPacket(byte skin) {
+    public PacketC2SChangeArmorStandSkin(byte skin) {
         this.skin = skin;
     }
 
@@ -68,7 +68,7 @@ public class ArmorStandChangeSkinPacket extends Packet implements ManagedPacket<
     }
 
     @Override
-    public PacketType<ArmorStandChangeSkinPacket> getType() {
+    public PacketType<PacketC2SChangeArmorStandSkin> getType() {
         return TYPE;
     }
 }

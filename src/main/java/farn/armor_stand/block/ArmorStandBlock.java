@@ -1,7 +1,7 @@
 package farn.armor_stand.block;
 
 import farn.armor_stand.block.entity.ArmorStandBlockEntity;
-import farn.armor_stand.screen.ArmorStandScreenHandler;
+import farn.armor_stand.screen.handler.ArmorStandScreenHandler;
 import farn.armor_stand.ArmorStandStationAPI;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.EnvironmentInterface;
@@ -64,6 +64,9 @@ public class ArmorStandBlock extends TemplateBlockWithEntity implements BlockWit
 	public void onPlaced(World world, int x, int y, int z, LivingEntity entity) {
 		byte var6 = (byte)(MathHelper.floor((double)((entity.yaw + 180.0F) * 16.0F / 360.0F) + 0.5D) & 15);
 		world.setBlockMeta(x, y, z, var6);
+		if(world.getBlockEntity(x, y, z) instanceof ArmorStandBlockEntity armorStandBlock && entity instanceof PlayerEntity plr) {
+			armorStandBlock.placer = plr.name;
+		}
 	}
 
 	public boolean onUse(World world, int x, int y, int z, PlayerEntity player) {

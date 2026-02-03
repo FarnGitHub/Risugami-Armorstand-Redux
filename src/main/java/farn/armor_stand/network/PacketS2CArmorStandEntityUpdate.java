@@ -1,9 +1,10 @@
-package farn.armor_stand.packet;
+package farn.armor_stand.network;
 
 import farn.armor_stand.ArmorStandStationAPI;
 import farn.armor_stand.block.entity.ArmorStandBlockEntity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtIo;
@@ -17,17 +18,18 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 
-public class ArmorStandEntityUpdatePacket extends Packet implements ManagedPacket<ArmorStandEntityUpdatePacket> {
+public class PacketS2CArmorStandEntityUpdate extends Packet implements ManagedPacket<PacketS2CArmorStandEntityUpdate> {
 
     public NbtCompound data;
     public int dataSize = 0;
-    public static final PacketType<ArmorStandEntityUpdatePacket> TYPE = PacketType.builder(true, true, ArmorStandEntityUpdatePacket::new).build();
+    public static final PacketType<PacketS2CArmorStandEntityUpdate> TYPE = PacketType.builder(true, true, PacketS2CArmorStandEntityUpdate::new).build();
 
-    public ArmorStandEntityUpdatePacket() {
+    public PacketS2CArmorStandEntityUpdate() {
 
     }
 
-    public ArmorStandEntityUpdatePacket(ArmorStandBlockEntity te) {
+    @Environment(EnvType.SERVER)
+    public PacketS2CArmorStandEntityUpdate(ArmorStandBlockEntity te) {
         data = new NbtCompound();
         te.writeNbt(data);
     }
@@ -100,7 +102,7 @@ public class ArmorStandEntityUpdatePacket extends Packet implements ManagedPacke
     }
 
     @Override
-    public @NotNull PacketType<ArmorStandEntityUpdatePacket> getType() {
+    public @NotNull PacketType<PacketS2CArmorStandEntityUpdate> getType() {
         return TYPE;
     }
 }

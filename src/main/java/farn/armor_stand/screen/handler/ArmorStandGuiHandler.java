@@ -1,6 +1,7 @@
-package farn.armor_stand.screen;
+package farn.armor_stand.screen.handler;
 
 import farn.armor_stand.block.entity.ArmorStandBlockEntity;
+import farn.armor_stand.screen.ArmorStandScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;

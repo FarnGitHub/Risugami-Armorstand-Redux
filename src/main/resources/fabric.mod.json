@@ -16,9 +16,6 @@
       "farn.armor_stand.ArmorStandStationAPI"
     ]
   },
-  "mixins": [
-    "armor_stand.mixins.json"
-  ],
   "accessWidener": "armor_stand.accesswidener",
   "depends": {
     "minecraft": "1.0.0-beta.7.3"

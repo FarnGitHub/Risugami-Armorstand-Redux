@@ -27,6 +27,8 @@ loom {
     }
 }
 
+def adsads
+
 repositories {
     // Used for Babric Loom Extensions
     maven {
@@ -152,14 +154,8 @@ dependencies {
         }
     }
 
-    if (project.hasProperty("debugutilities_version")) {
-        modImplementation("net.danygames2014:DebugUtilities:${project.debugutilities_version}")
-    }
-
     if (project.hasProperty("retroauth_version")) {
-        modImplementation("maven.modrinth:retroauth:${project.retroauth_version}-b1.7.3") {
-            transitive = false
-        }
+        modImplementation("maven.modrinth:retroauth:${project.retroauth_version}-b1.7.3")
     }
 
     if (project.hasProperty("unitweaks_version")) {
