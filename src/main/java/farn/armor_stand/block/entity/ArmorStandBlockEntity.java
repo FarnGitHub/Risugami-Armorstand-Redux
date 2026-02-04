@@ -17,21 +17,9 @@ public class ArmorStandBlockEntity extends BlockEntity implements Inventory {
 	public byte skin = 0;
 	public String placer = "";
 
-	private int tick = 0;
-
 	@Override
 	public int size() {
 		return this.items.length;
-	}
-
-	@Environment(EnvType.SERVER)
-	@Override
-	public void tick() {
-		super.tick();
-		if(++tick >= 20){
-			tick = 0;
-			ServerUtil.sendUpdateToPlayer(this);
-		}
 	}
 
 	@Override

@@ -22,16 +22,17 @@ public class PacketS2CArmorStandEntityUpdate extends Packet implements ManagedPa
 
     public NbtCompound data;
     public int dataSize = 0;
-    public static final PacketType<PacketS2CArmorStandEntityUpdate> TYPE = PacketType.builder(true, true, PacketS2CArmorStandEntityUpdate::new).build();
+    public static final PacketType<PacketS2CArmorStandEntityUpdate> TYPE = PacketType.builder(true, false, PacketS2CArmorStandEntityUpdate::new).build();
 
     public PacketS2CArmorStandEntityUpdate() {
-
+        worldPacket = true;
     }
 
     @Environment(EnvType.SERVER)
     public PacketS2CArmorStandEntityUpdate(ArmorStandBlockEntity te) {
         data = new NbtCompound();
         te.writeNbt(data);
+        worldPacket = true;
     }
 
     @Override
