@@ -32,18 +32,18 @@ public class ArmorStandBlockEntity extends BlockEntity implements Inventory {
 	@Override
 	public ItemStack removeStack(int slot, int stack) {
 		if(this.items[slot] != null) {
-			ItemStack var3;
+			ItemStack removedStack;
 			if(this.items[slot].count <= stack) {
-				var3 = this.items[slot];
+				removedStack = this.items[slot];
 				this.items[slot] = null;
 			} else {
-				var3 = this.items[slot].split(stack);
+				removedStack = this.items[slot].split(stack);
 				if(this.items[slot].count == 0) {
 					this.items[slot] = null;
 				}
 			}
 			this.markDirty();
-			return var3;
+			return removedStack;
 		} else {
 			return null;
 		}
@@ -71,16 +71,16 @@ public class ArmorStandBlockEntity extends BlockEntity implements Inventory {
 	@Override
 	public void readNbt(NbtCompound nbt) {
 		super.readNbt(nbt);
-		NbtList var2 = nbt.getList("Items");
+		NbtList itemsList = nbt.getList("Items");
 		this.items = new ItemStack[this.size()];
 		this.skin = nbt.getByte("Skin");
 		this.placer = nbt.getString("Placer");
 
-		for(int var3 = 0; var3 < var2.size(); ++var3) {
-			NbtCompound var4 = (NbtCompound)var2.get(var3);
-			byte var5 = var4.getByte("Slot");
-			if (var5 >= 0 && var5 < this.items.length) {
-				this.items[var5] = new ItemStack(var4);
+		for(int index = 0; index < itemsList.size(); ++index) {
+			NbtCompound itemData = (NbtCompound)itemsList.get(index);
+			byte targetSlot = itemData.getByte("Slot");
+			if (targetSlot >= 0 && targetSlot < this.items.length) {
+				this.items[targetSlot] = new ItemStack(itemData);
 			}
 		}
 	}
@@ -88,18 +88,18 @@ public class ArmorStandBlockEntity extends BlockEntity implements Inventory {
 	@Override
 	public void writeNbt(NbtCompound nbt) {
 		super.writeNbt(nbt);
-		NbtList var2 = new NbtList();
+		NbtList list = new NbtList();
 
-		for(int var3 = 0; var3 < this.items.length; ++var3) {
-			if (this.items[var3] != null) {
-				NbtCompound var4 = new NbtCompound();
-				var4.putByte("Slot", (byte)var3);
-				this.items[var3].writeNbt(var4);
-				var2.add(var4);
+		for(int index = 0; index < this.items.length; ++index) {
+			if (this.items[index] != null) {
+				NbtCompound itemData = new NbtCompound();
+				itemData.putByte("Slot", (byte)index);
+				this.items[index].writeNbt(itemData);
+				list.add(itemData);
 			}
 		}
 
-		nbt.put("Items", var2);
+		nbt.put("Items", list);
 		nbt.putByte("Skin", this.skin);
 		if(!this.placer.isEmpty()) {
 			nbt.putString("Placer", this.placer);
@@ -121,7 +121,8 @@ public class ArmorStandBlockEntity extends BlockEntity implements Inventory {
 	@Override
 	public void markDirty() {
 		super.markDirty();
-		ServerUtil.sendUpdateToPlayer(this);
+		if(world != null)
+			ServerUtil.sendUpdateToPlayer(this);
 	}
 
 }

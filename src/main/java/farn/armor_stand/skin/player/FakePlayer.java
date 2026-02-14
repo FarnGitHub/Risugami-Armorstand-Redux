@@ -7,12 +7,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.network.OtherPlayerEntity;
 
 public class FakePlayer extends OtherPlayerEntity {
-    public ArmorStandBlockEntity armorStandBlockEntity;
     private PlayerCache plrCache;
 
     public FakePlayer(ArmorStandBlockEntity blockEntity) {
         super(Minecraft.INSTANCE.world, blockEntity.placer);
-        this.armorStandBlockEntity = blockEntity;
+    }
+
+    public FakePlayer(String name) {
+        super(Minecraft.INSTANCE.world, name);
     }
 
     @Environment(EnvType.CLIENT)

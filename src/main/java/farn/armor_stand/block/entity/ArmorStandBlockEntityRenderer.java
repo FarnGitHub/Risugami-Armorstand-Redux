@@ -1,6 +1,5 @@
 package farn.armor_stand.block.entity;
 
-import farn.armor_stand.ArmorStandStationAPI;
 import farn.armor_stand.skin.*;
 import farn.armor_stand.skin.player.PlayerCache;
 import farn.armor_stand.skin.player.FakePlayer;
@@ -15,7 +14,6 @@ import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.render.entity.PlayerEntityRenderer;
 import net.minecraft.client.render.entity.model.BipedEntityModel;
-import net.minecraft.client.texture.SkinImageProcessor;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.BlockItem;
@@ -39,6 +37,7 @@ public class ArmorStandBlockEntityRenderer extends BlockEntityRenderer {
 	private static final Map<String, PlayerCache> plrCache = new Reference2ObjectOpenHashMap<>();
 	private LivingEntity dummy;
 	private final PlayerCache defaultCache = new PlayerCache("", body);
+	private String defaultPlayerTexture = "";
 
 	public void render(BlockEntity blockEntity, double x, double y, double z, float var8) {
 		if (blockEntity instanceof ArmorStandBlockEntity tileEntityArmor) {
@@ -90,40 +89,38 @@ public class ArmorStandBlockEntityRenderer extends BlockEntityRenderer {
 
 	private PlayerCache getPlayerCache(ArmorStandBlockEntity blockEntity) {
 		if(blockEntity.placer.isEmpty()) return defaultCache;
-		PlayerCache cache = plrCache.computeIfAbsent(blockEntity.placer, pl -> {
+		return plrCache.computeIfAbsent(blockEntity.placer, pl -> {
 			try {
 				FakePlayer fake = new FakePlayer(blockEntity);
-				PlayerCache cache2 = new PlayerCache(fake.skinUrl, PlayerCacheHandler.cloneBipedEntity(fake));
-				fake.setPlayerCache(cache2);
-				return cache2;
+				PlayerCache finalCache = new PlayerCache(fake.skinUrl, PlayerCacheHandler.cloneBipedEntity(fake));
+				fake.setPlayerCache(finalCache);
+				return finalCache;
 			} catch (Exception e) {
-				return null;
+				return defaultCache;
 			}
 		});
-		return cache != null ? cache : defaultCache;
 	}
 
 	private void renderArmorStandEntityModel(ArmorStandBlockEntity tileEntityArmor) {
-		if(ArmorStandSkins.isPlayerSkin(tileEntityArmor.skin)) {
-			PlayerCache cache = getPlayerCache(tileEntityArmor);
-			if(cache != null) {
-				bindSkinTexture(cache.url);
-				glPushMatrix();
-				renderNormalModel(cache.model);
-				glPopMatrix();
-			}
-		} else {
+		PlayerCache cache = null;
+		if(ArmorStandSkins.isPlayerSkin(tileEntityArmor.skin)
+				&& (cache = getPlayerCache(tileEntityArmor)) != null)
+			bindSkinTexture(cache.url);
+		else
 			this.bindTexture(ArmorStandSkins.getTexture(tileEntityArmor.skin));
-			glPushMatrix();
-			renderNormalModel(body);
-			glPopMatrix();
-		}
+		glPushMatrix();
+		renderNormalModel(cache != null ? cache.model : body);
+		glPopMatrix();
 	}
 
 	private void bindSkinTexture(String skin) {
+		if(defaultPlayerTexture.isEmpty()) {
+			FakePlayer fake = new FakePlayer("not_a_player");
+			defaultPlayerTexture = fake.getTexture();
+		}
 		this.dispatcher.textureManager.bindTexture(
 				this.dispatcher.textureManager.downloadTexture(skin
-						, "/mob/char.png"));
+						, defaultPlayerTexture));
 	}
 
 	private void renderArmor(ArmorItem armor, float brightness) {
