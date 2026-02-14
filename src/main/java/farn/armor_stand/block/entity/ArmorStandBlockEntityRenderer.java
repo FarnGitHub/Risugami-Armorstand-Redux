@@ -36,7 +36,7 @@ public class ArmorStandBlockEntityRenderer extends BlockEntityRenderer {
 	private static final Map<Identifier, String[]> armorCache = new Reference2ObjectOpenHashMap<>();
 	private static final Map<String, PlayerCache> plrCache = new Reference2ObjectOpenHashMap<>();
 	private LivingEntity dummy;
-	private final PlayerCache defaultCache = new PlayerCache("", body);
+	private PlayerCache defaultCache;
 	private String defaultPlayerTexture = "";
 
 	public void render(BlockEntity blockEntity, double x, double y, double z, float var8) {
@@ -44,6 +44,11 @@ public class ArmorStandBlockEntityRenderer extends BlockEntityRenderer {
 			if(dummy == null) {
 				dummy = new LivingEntity(Minecraft.INSTANCE.world) {
 				};
+			}
+			if(defaultCache == null) {
+				FakePlayer fake = new FakePlayer("");
+				defaultCache = new PlayerCache("", PlayerCacheHandler.cloneBipedEntity(fake));
+				defaultPlayerTexture = fake.getTexture();
 			}
 			if(dummy.world != tileEntityArmor.world) {
 				dummy.setWorld(tileEntityArmor.world);
@@ -115,10 +120,6 @@ public class ArmorStandBlockEntityRenderer extends BlockEntityRenderer {
 	}
 
 	private void bindSkinTexture(String skin) {
-		if(defaultPlayerTexture.isEmpty()) {
-			FakePlayer fake = new FakePlayer("not_a_player");
-			defaultPlayerTexture = fake.getTexture();
-		}
 		this.dispatcher.textureManager.bindTexture(
 				this.dispatcher.textureManager.downloadTexture(skin
 						, defaultPlayerTexture));

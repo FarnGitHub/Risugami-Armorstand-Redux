@@ -5,7 +5,7 @@ import farn.armor_stand.block.entity.ArmorStandBlockEntity;
 import farn.armor_stand.block.entity.ArmorStandBlockEntityRenderer;
 import farn.armor_stand.network.PacketC2SChangeArmorStandSkin;
 import farn.armor_stand.network.PacketS2CArmorStandEntityUpdate;
-import farn.armor_stand.screen.ArmorStandScreen;
+import farn.armor_stand.screen.ArmorStandScreenFactory;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.mine_diver.unsafeevents.listener.EventListener;
@@ -32,18 +32,20 @@ public class ArmorStandStationAPI {
 
     public static ArmorStandBlock armorStand;
 
+    @Environment(EnvType.CLIENT)
     @EventListener
-    public void registerArmorStandUI(GuiHandlerRegistryEvent event) {
+    public void registerGuiHandler(GuiHandlerRegistryEvent event) {
         event.register(
             NAMESPACE.id("armor_stand_gui"),
-            new GuiHandler(
-                (player, inventory, packet) -> {
-                if(inventory instanceof ArmorStandBlockEntity armorStandBlockEntity) {
-                    armorStandBlockEntity.skin = packet.bytes[0];
-                    return new ArmorStandScreen(player.inventory, armorStandBlockEntity);
-                }
-                return null;
-            }, ArmorStandBlockEntity::new));
+             new GuiHandler(new ArmorStandScreenFactory(), ArmorStandBlockEntity::new));
+    }
+
+    @Environment(EnvType.CLIENT)
+    @EventListener
+    public void registerBlockEntityRenderer(BlockEntityRendererRegisterEvent event) {
+        event.renderers.put(
+                ArmorStandBlockEntity.class,
+                new ArmorStandBlockEntityRenderer());
     }
 
     @EventListener
@@ -53,19 +55,19 @@ public class ArmorStandStationAPI {
 
     @EventListener
     public void registerBlockEntity(BlockEntityRegisterEvent event) {
-        event.register(ArmorStandBlockEntity.class, NAMESPACE.id("armor_stand_block_entity").toString());
-    }
-
-    @Environment(EnvType.CLIENT)
-    @EventListener
-    public void registerBlockEntityRenderer(BlockEntityRendererRegisterEvent event) {
-        event.renderers.put(ArmorStandBlockEntity.class, new ArmorStandBlockEntityRenderer());
+        event.register(
+                ArmorStandBlockEntity.class,
+                NAMESPACE.id("armor_stand_block_entity").toString());
     }
 
     @EventListener
     public void registerPacket(PacketRegisterEvent event) {
-        Registry.register(PacketTypeRegistry.INSTANCE,  NAMESPACE.id("armor_stand_update_packet"), PacketS2CArmorStandEntityUpdate.TYPE);
-        Registry.register(PacketTypeRegistry.INSTANCE,  NAMESPACE.id("armor_stand_skin_packet"), PacketC2SChangeArmorStandSkin.TYPE);
+        Registry.register(PacketTypeRegistry.INSTANCE,
+                NAMESPACE.id("armor_stand_update_packet"),
+                PacketS2CArmorStandEntityUpdate.TYPE);
+        Registry.register(PacketTypeRegistry.INSTANCE,
+                NAMESPACE.id("armor_stand_skin_packet"),
+                PacketC2SChangeArmorStandSkin.TYPE);
     }
 
 }
