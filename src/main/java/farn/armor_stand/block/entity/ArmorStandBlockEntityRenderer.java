@@ -93,6 +93,7 @@ public class ArmorStandBlockEntityRenderer extends BlockEntityRenderer {
 			try {
 				FakePlayer fake = new FakePlayer(blockEntity);
 				PlayerCache finalCache = new PlayerCache(fake.skinUrl, PlayerCacheHandler.cloneBipedEntity(fake));
+				fake.downloadSkin();
 				fake.setPlayerCache(finalCache);
 				return finalCache;
 			} catch (Exception e) {
