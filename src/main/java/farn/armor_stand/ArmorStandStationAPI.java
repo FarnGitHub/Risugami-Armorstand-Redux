@@ -5,6 +5,7 @@ import farn.armor_stand.block.entity.ArmorStandBlockEntity;
 import farn.armor_stand.block.entity.ArmorStandBlockEntityRenderer;
 import farn.armor_stand.network.PacketC2SChangeArmorStandSkin;
 import farn.armor_stand.network.PacketS2CArmorStandEntityUpdate;
+import farn.armor_stand.network.PacketS2CUpdatePlacer;
 import farn.armor_stand.screen.handler.ArmorStandGuiHandler;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -61,6 +62,7 @@ public class ArmorStandStationAPI {
     public void registerPacket(PacketRegisterEvent event) {
         Registry.register(PacketTypeRegistry.INSTANCE,  NAMESPACE.id("armor_stand_update_packet"), PacketS2CArmorStandEntityUpdate.TYPE);
         Registry.register(PacketTypeRegistry.INSTANCE,  NAMESPACE.id("armor_stand_skin_packet"), PacketC2SChangeArmorStandSkin.TYPE);
+        Registry.register(PacketTypeRegistry.INSTANCE,  NAMESPACE.id("armor_stand_update_placer_packet"), PacketS2CUpdatePlacer.TYPE);
     }
 
 }

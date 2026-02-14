@@ -10,9 +10,9 @@ import net.modificationstation.stationapi.api.network.packet.MessagePacket;
 
 public class ArmorStandGuiHandler {
     public static final ScreenFactory screen = new ScreenFactory();
-    public static final InvetoryFactory inventory = new InvetoryFactory();
+    public static final InventoryFactory inventory = new InventoryFactory();
 
-    private static class ScreenFactory implements GuiHandler.ScreenFactory {
+    public static class ScreenFactory implements GuiHandler.ScreenFactory {
 
         @Override
         public Screen create(PlayerEntity player, Inventory inventory, MessagePacket packet) {
@@ -24,7 +24,7 @@ public class ArmorStandGuiHandler {
         }
     }
 
-    private static class InvetoryFactory implements GuiHandler.InventoryFactory {
+    public static class InventoryFactory implements GuiHandler.InventoryFactory {
 
         @Override
         public Inventory create() {

@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "farn.armor_stand.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "plugin": "farn.armor_stand.mixin.MixinPlugin",
+  "client": [
+    "RetroAuthSkinServiceMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

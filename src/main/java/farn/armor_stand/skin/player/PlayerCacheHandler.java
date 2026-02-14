@@ -21,7 +21,12 @@ public class PlayerCacheHandler implements InstanceCreator<BipedEntityModel> {
         return gson.fromJson(json, t.getClass());
     }
 
-    public static PlayerEntityRenderer getPlayerRender(FakePlayer player) {
+    public static BipedEntityModel cloneBipedEntity(FakePlayer plr) {
+        PlayerEntityRenderer renderer = getPlayerRender(plr);
+        return cloneBipedEntity(renderer.bipedModel);
+    }
+
+    private static PlayerEntityRenderer getPlayerRender(FakePlayer player) {
         return (PlayerEntityRenderer) EntityRenderDispatcher.INSTANCE.get(player);
     }
 }

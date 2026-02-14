@@ -30,9 +30,9 @@ public class PacketS2CArmorStandEntityUpdate extends Packet implements ManagedPa
 
     @Environment(EnvType.SERVER)
     public PacketS2CArmorStandEntityUpdate(ArmorStandBlockEntity te) {
+        this();
         data = new NbtCompound();
         te.writeNbt(data);
-        worldPacket = true;
     }
 
     @Override

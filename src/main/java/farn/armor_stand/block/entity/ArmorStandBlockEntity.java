@@ -2,8 +2,10 @@ package farn.armor_stand.block.entity;
 
 import farn.armor_stand.network.PacketS2CArmorStandEntityUpdate;
 import farn.armor_stand.network.ServerUtil;
+import farn.armor_stand.skin.ArmorStandSkins;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
@@ -34,17 +36,14 @@ public class ArmorStandBlockEntity extends BlockEntity implements Inventory {
 			if(this.items[slot].count <= stack) {
 				var3 = this.items[slot];
 				this.items[slot] = null;
-				this.markDirty();
-				return var3;
 			} else {
 				var3 = this.items[slot].split(stack);
 				if(this.items[slot].count == 0) {
 					this.items[slot] = null;
 				}
-
-				this.markDirty();
-				return var3;
 			}
+			this.markDirty();
+			return var3;
 		} else {
 			return null;
 		}
@@ -56,7 +55,6 @@ public class ArmorStandBlockEntity extends BlockEntity implements Inventory {
 		if(stack != null && stack.count > this.getMaxCountPerStack()) {
 			stack.count = this.getMaxCountPerStack();
 		}
-
 		this.markDirty();
 	}
 
@@ -103,7 +101,9 @@ public class ArmorStandBlockEntity extends BlockEntity implements Inventory {
 
 		nbt.put("Items", var2);
 		nbt.putByte("Skin", this.skin);
-		nbt.putString("Placer", this.placer);
+		if(!this.placer.isEmpty()) {
+			nbt.putString("Placer", this.placer);
+		}
 	}
 
 	@Environment(EnvType.SERVER)

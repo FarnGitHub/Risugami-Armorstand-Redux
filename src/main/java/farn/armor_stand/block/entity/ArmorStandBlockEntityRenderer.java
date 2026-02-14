@@ -1,5 +1,6 @@
 package farn.armor_stand.block.entity;
 
+import farn.armor_stand.ArmorStandStationAPI;
 import farn.armor_stand.skin.*;
 import farn.armor_stand.skin.player.PlayerCache;
 import farn.armor_stand.skin.player.FakePlayer;
@@ -37,6 +38,7 @@ public class ArmorStandBlockEntityRenderer extends BlockEntityRenderer {
 	private static final Map<Identifier, String[]> armorCache = new Reference2ObjectOpenHashMap<>();
 	private static final Map<String, PlayerCache> plrCache = new Reference2ObjectOpenHashMap<>();
 	private LivingEntity dummy;
+	private final PlayerCache defaultCache = new PlayerCache("", body);
 
 	public void render(BlockEntity blockEntity, double x, double y, double z, float var8) {
 		if (blockEntity instanceof ArmorStandBlockEntity tileEntityArmor) {
@@ -86,28 +88,30 @@ public class ArmorStandBlockEntityRenderer extends BlockEntityRenderer {
 		currentModel.render(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 1.0F / 16.0F);
 	}
 
-	private PlayerCache getPlayerCache(String plr) {
-		if(plr.isEmpty()) return new PlayerCache("", body);
-		return plrCache.computeIfAbsent(plr, pl -> {
-			FakePlayer fake = new FakePlayer(plr);
-			if(fake.skinUrl.startsWith("http://s3.amazonaws.com/MinecraftSkins/") && fake.skinUrl.endsWith(".png")) {
-				this.dispatcher.textureManager.downloadImage(fake.skinUrl, new SkinImageProcessor());
+	private PlayerCache getPlayerCache(ArmorStandBlockEntity blockEntity) {
+		if(blockEntity.placer.isEmpty()) return defaultCache;
+		PlayerCache cache = plrCache.computeIfAbsent(blockEntity.placer, pl -> {
+			try {
+				FakePlayer fake = new FakePlayer(blockEntity);
+				PlayerCache cache2 = new PlayerCache(fake.skinUrl, PlayerCacheHandler.cloneBipedEntity(fake));
+				fake.setPlayerCache(cache2);
+				return cache2;
+			} catch (Exception e) {
+				return null;
 			}
-			return new PlayerCache(fake.skinUrl,
-					PlayerCacheHandler.cloneBipedEntity(
-							PlayerCacheHandler.getPlayerRender(fake).bipedModel));
 		});
+		return cache != null ? cache : defaultCache;
 	}
 
 	private void renderArmorStandEntityModel(ArmorStandBlockEntity tileEntityArmor) {
 		if(ArmorStandSkins.isPlayerSkin(tileEntityArmor.skin)) {
-			PlayerCache cache = getPlayerCache(tileEntityArmor.placer);
-			BipedEntityModel plrBody = cache != null ? cache.model() : body;
-			String url = cache != null ? cache.url() : "";
-			bindSkinTexture(url);
-			glPushMatrix();
-			renderNormalModel(plrBody);
-			glPopMatrix();
+			PlayerCache cache = getPlayerCache(tileEntityArmor);
+			if(cache != null) {
+				bindSkinTexture(cache.url);
+				glPushMatrix();
+				renderNormalModel(cache.model);
+				glPopMatrix();
+			}
 		} else {
 			this.bindTexture(ArmorStandSkins.getTexture(tileEntityArmor.skin));
 			glPushMatrix();
@@ -143,13 +147,13 @@ public class ArmorStandBlockEntityRenderer extends BlockEntityRenderer {
 		if (armor instanceof ArmorTextureProvider provider) {
 			Identifier id = provider.getTexture(armor);
 			String[] textures = armorCache.computeIfAbsent(id, k -> new String[4]);
-			if (textures[textureIndex] == null) textures[textureIndex] = getStationAPIArmor(id, textureIndex);
+			if (textures[textureIndex] == null) textures[textureIndex] = getStationAPIArmor(id, slot);
 			this.bindTexture(textures[textureIndex]);
 		}
 		else this.bindTexture("/armor/" + PlayerEntityRenderer.armorTextureNames[textureIndex] + (slot == 2 ? "_2.png" : "_1.png"));
 	}
-	private String getStationAPIArmor(Identifier identifier, int armorIndex) {
-		return "/assets/" + identifier.namespace + "/stationapi/textures/armor/" + identifier.path + (armorIndex == 2 ? "_2.png" : "_1.png");
+	private String getStationAPIArmor(Identifier identifier, int slot) {
+		return "/assets/" + identifier.namespace + "/stationapi/textures/armor/" + identifier.path + (slot == 2 ? "_2.png" : "_1.png");
 	}
 
 	private void renderPumpkinHead(BlockItem itemBlock, float brightness, ItemStack stack, LivingEntity dummyEntity) {
