@@ -1,4 +1,4 @@
-package farn.armor_stand.screen.handler;
+package farn.armor_stand.screen;
 
 import farn.armor_stand.block.entity.ArmorStandBlockEntity;
 import farn.armor_stand.inventory_slot.ArmorStandSlot;
@@ -9,24 +9,22 @@ import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 
 public class ArmorStandScreenHandler extends ScreenHandler {
-	private final Inventory inv;
 	public ArmorStandBlockEntity armorStandEntity;
-	private final Slot[] armorStandInvetorySlots;
+	private final Slot[] armorStandSlots;
 
 	public ArmorStandScreenHandler(Inventory inv, ArmorStandBlockEntity armorStand) {
-		this.inv = inv;
 		this.armorStandEntity = armorStand;
-		this.armorStandInvetorySlots = new Slot[armorStandEntity.size()];
+		this.armorStandSlots = new Slot[armorStandEntity.size()];
 		int i = 0;
 		//item slot for armor stand
-		this.addSlot(armorStandInvetorySlots[4] = new Slot(armorStand, 4, 46, 36));
+		this.addSlot(armorStandSlots[4] = new Slot(armorStand, 4, 46, 36));
 
 		int x;
 		int y;
 		//armor slot for armor stand
 		for(y = 0; y < 2; ++y) {
 			for(x = 0; x < 2; ++x) {
-				this.addSlot(armorStandInvetorySlots[i] = new ArmorStandSlot(armorStand, i, 8 + x * 18, 18 + y * 18, i++));
+				this.addSlot(armorStandSlots[i] = new ArmorStandSlot(armorStand, i, 8 + x * 18, 18 + y * 18, i++));
 			}
 		}
 
@@ -44,7 +42,7 @@ public class ArmorStandScreenHandler extends ScreenHandler {
 	}
 
 	public boolean canUse(PlayerEntity plr) {
-		return this.inv.canPlayerUse(plr);
+		return this.armorStandEntity.canPlayerUse(plr);
 	}
 
 	public ItemStack quickMove(int slotId) {
@@ -73,15 +71,12 @@ public class ArmorStandScreenHandler extends ScreenHandler {
 				this.insertItem(stack, 5, 41, false);
 			}
 
-			if (stack.count <= 0) {
+			if (stack.count <= 0)
 				slot.setStack(null);
-			} else {
+			else
 				slot.markDirty();
-			}
 
-			if (stack.count == newStack.count) {
-				return null;
-			}
+			if (stack.count == newStack.count) return null;
 
 			slot.onTakeItem(stack);
 		}
@@ -92,7 +87,7 @@ public class ArmorStandScreenHandler extends ScreenHandler {
 	private int getValidSlotForArmor(Slot slotIndex) {
 		ItemStack stack = slotIndex.getStack();
 		if(stack != null)
-			for(Slot slot : this.armorStandInvetorySlots)
+			for(Slot slot : this.armorStandSlots)
 				if(!slot.hasStack() && slot.canInsert(stack))
 					return slot.id;
 		return -1;

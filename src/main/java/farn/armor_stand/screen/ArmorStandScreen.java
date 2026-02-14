@@ -2,7 +2,6 @@ package farn.armor_stand.screen;
 
 import farn.armor_stand.skin.ArmorStandSkins;
 import farn.armor_stand.block.entity.ArmorStandBlockEntity;
-import farn.armor_stand.screen.handler.ArmorStandScreenHandler;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;

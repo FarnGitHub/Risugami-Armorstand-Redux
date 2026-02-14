@@ -2,10 +2,8 @@ package farn.armor_stand.block.entity;
 
 import farn.armor_stand.network.PacketS2CArmorStandEntityUpdate;
 import farn.armor_stand.network.ServerUtil;
-import farn.armor_stand.skin.ArmorStandSkins;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
@@ -122,7 +120,7 @@ public class ArmorStandBlockEntity extends BlockEntity implements Inventory {
 	public void markDirty() {
 		super.markDirty();
 		if(world != null)
-			ServerUtil.sendUpdateToPlayer(this);
+			ServerUtil.sendUpdateAroundTrackedPlayer(this);
 	}
 
 }

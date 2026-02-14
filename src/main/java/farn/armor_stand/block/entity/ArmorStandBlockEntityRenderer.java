@@ -64,7 +64,7 @@ public class ArmorStandBlockEntityRenderer extends BlockEntityRenderer {
 					ItemStack stack = tileEntityArmor.getStack(index);
 					if (stack != null) {
 						if(index == 0 && stack.getItem() instanceof BlockItem itemBlock) {
-							renderPumpkinHead(itemBlock, brightness, stack, dummy);
+							renderPumpkinHead(body, itemBlock, brightness, stack, dummy);
 						} else if(stack.getItem() instanceof ArmorItem armor) {
 							renderArmor(armor, brightness);
 						} else if(index == 4) {
@@ -153,7 +153,7 @@ public class ArmorStandBlockEntityRenderer extends BlockEntityRenderer {
 		return "/assets/" + identifier.namespace + "/stationapi/textures/armor/" + identifier.path + (slot == 2 ? "_2.png" : "_1.png");
 	}
 
-	private void renderPumpkinHead(BlockItem itemBlock, float brightness, ItemStack stack, LivingEntity dummyEntity) {
+	private void renderPumpkinHead(BipedEntityModel body, BlockItem itemBlock, float brightness, ItemStack stack, LivingEntity dummyEntity) {
 		GL11.glPushMatrix();
 		body.head.transform(0.0625F);
 		if (BlockRenderManager.isSideLit(itemBlock.getBlock().getRenderType())) {
@@ -171,41 +171,40 @@ public class ArmorStandBlockEntityRenderer extends BlockEntityRenderer {
 	}
 
 	public void renderHeldItem(BipedEntityModel body, ItemStack stack, LivingEntity dummyEntity) {
-		GL11.glPushMatrix();
-		GL11.glDisable(GL11.GL_CULL_FACE);
+		glPushMatrix();
+		glDisable(GL_CULL_FACE);
 		body.rightArm.transform(0.0625F);
-		GL11.glTranslatef(-0.0625F, 0.4375F, 0.0625F);
-
+		glTranslatef(-0.0625F, 0.4375F, 0.0625F);
 		if (stack.getItem() instanceof BlockItem blockItem && BlockRenderManager.isSideLit(blockItem.getBlock().getRenderType())) {
 			float var24 = 0.5F;
-			GL11.glTranslatef(0.0F, 0.1875F, -0.3125F);
+			glTranslatef(0.0F, 0.1875F, -0.3125F);
 			var24 *= 0.75F;
-			GL11.glRotatef(20.0F, 1.0F, 0.0F, 0.0F);
-			GL11.glRotatef(45.0F, 0.0F, 1.0F, 0.0F);
-			GL11.glScalef(var24, -var24, var24);
+			glRotatef(20.0F, 1.0F, 0.0F, 0.0F);
+			glRotatef(45.0F, 0.0F, 1.0F, 0.0F);
+			glScalef(var24, -var24, var24);
 		} else if (stack.getItem().isHandheld()) {
 			float var22 = 0.625F;
 			if (stack.getItem().isHandheldRod()) {
-				GL11.glRotatef(180.0F, 0.0F, 0.0F, 1.0F);
-				GL11.glTranslatef(0.0F, -0.125F, 0.0F);
+				glRotatef(180.0F, 0.0F, 0.0F, 1.0F);
+				glTranslatef(0.0F, -0.125F, 0.0F);
 			}
 
-			GL11.glTranslatef(0.0F, 0.1875F, 0.0F);
-			GL11.glScalef(var22, -var22, var22);
-			GL11.glRotatef(-100.0F, 1.0F, 0.0F, 0.0F);
-			GL11.glRotatef(45.0F, 0.0F, 1.0F, 0.0F);
+			glTranslatef(0.0F, 0.1875F, 0.0F);
+			glScalef(var22, -var22, var22);
+			glRotatef(-100.0F, 1.0F, 0.0F, 0.0F);
+			glRotatef(45.0F, 0.0F, 1.0F, 0.0F);
 		} else {
 			float var23 = 0.375F;
-			GL11.glTranslatef(0.25F, 0.1875F, -0.1875F);
-			GL11.glScalef(var23, var23, var23);
-			GL11.glRotatef(60.0F, 0.0F, 0.0F, 1.0F);
-			GL11.glRotatef(-90.0F, 1.0F, 0.0F, 0.0F);
-			GL11.glRotatef(20.0F, 0.0F, 0.0F, 1.0F);
+			glTranslatef(0.25F, 0.1875F, -0.1875F);
+			glScalef(var23, var23, var23);
+			glRotatef(60.0F, 0.0F, 0.0F, 1.0F);
+			glRotatef(-90.0F, 1.0F, 0.0F, 0.0F);
+			glRotatef(20.0F, 0.0F, 0.0F, 1.0F);
 		}
 
 		EntityRenderDispatcher.INSTANCE.heldItemRenderer.renderItem(dummyEntity, stack);
-		GL11.glEnable(GL11.GL_CULL_FACE);
-		GL11.glPopMatrix();
+		glEnable(GL_CULL_FACE);
+		glPopMatrix();
 	}
 
 }

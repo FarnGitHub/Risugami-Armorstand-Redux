@@ -5,13 +5,10 @@ import farn.armor_stand.block.entity.ArmorStandBlockEntity;
 import farn.armor_stand.block.entity.ArmorStandBlockEntityRenderer;
 import farn.armor_stand.network.PacketC2SChangeArmorStandSkin;
 import farn.armor_stand.network.PacketS2CArmorStandEntityUpdate;
-import farn.armor_stand.network.PacketS2CUpdatePlacer;
-import farn.armor_stand.screen.handler.ArmorStandGuiHandler;
+import farn.armor_stand.screen.ArmorStandScreen;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.mine_diver.unsafeevents.listener.EventListener;
-import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
 import net.modificationstation.stationapi.api.client.event.block.entity.BlockEntityRendererRegisterEvent;
 import net.modificationstation.stationapi.api.client.gui.screen.GuiHandler;
 import net.modificationstation.stationapi.api.event.block.entity.BlockEntityRegisterEvent;
@@ -25,6 +22,7 @@ import net.modificationstation.stationapi.api.util.Null;
 import net.modificationstation.stationapi.api.mod.entrypoint.Entrypoint;
 import org.apache.logging.log4j.Logger;
 
+@SuppressWarnings("unused")
 public class ArmorStandStationAPI {
     @Entrypoint.Namespace
     public static Namespace NAMESPACE = Null.get();
@@ -36,15 +34,21 @@ public class ArmorStandStationAPI {
 
     @EventListener
     public void registerArmorStandUI(GuiHandlerRegistryEvent event) {
-        event.register(NAMESPACE.id("armor_stand_gui"), new GuiHandler(ArmorStandGuiHandler.screen, ArmorStandGuiHandler.inventory));
+        event.register(
+            NAMESPACE.id("armor_stand_gui"),
+            new GuiHandler(
+                (player, inventory, packet) -> {
+                if(inventory instanceof ArmorStandBlockEntity armorStandBlockEntity) {
+                    armorStandBlockEntity.skin = packet.bytes[0];
+                    return new ArmorStandScreen(player.inventory, armorStandBlockEntity);
+                }
+                return null;
+            }, ArmorStandBlockEntity::new));
     }
 
     @EventListener
     public void registerBlock(BlockRegistryEvent event) {
-        armorStand = new ArmorStandBlock(NAMESPACE.id("armor_stand_block"), Material.WOOD);
-        armorStand.setTranslationKey(NAMESPACE, "armor_stand_block");
-        armorStand.setSoundGroup(Block.STONE_SOUND_GROUP);
-        armorStand.setHardness(0.1F);
+        armorStand = new ArmorStandBlock(NAMESPACE.id("armor_stand_block"));
     }
 
     @EventListener
@@ -62,7 +66,6 @@ public class ArmorStandStationAPI {
     public void registerPacket(PacketRegisterEvent event) {
         Registry.register(PacketTypeRegistry.INSTANCE,  NAMESPACE.id("armor_stand_update_packet"), PacketS2CArmorStandEntityUpdate.TYPE);
         Registry.register(PacketTypeRegistry.INSTANCE,  NAMESPACE.id("armor_stand_skin_packet"), PacketC2SChangeArmorStandSkin.TYPE);
-        Registry.register(PacketTypeRegistry.INSTANCE,  NAMESPACE.id("armor_stand_update_placer_packet"), PacketS2CUpdatePlacer.TYPE);
     }
 
 }

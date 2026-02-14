@@ -13,7 +13,6 @@ import net.minecraft.network.packet.Packet;
 import net.modificationstation.stationapi.api.entity.player.PlayerHelper;
 import net.modificationstation.stationapi.api.network.packet.ManagedPacket;
 import net.modificationstation.stationapi.api.network.packet.PacketType;
-import net.modificationstation.stationapi.api.util.SideUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
@@ -76,7 +75,9 @@ public class PacketS2CArmorStandEntityUpdate extends Packet implements ManagedPa
 
     @Override
     public void apply(NetworkHandler networkHandler) {
-        SideUtil.run(() -> handleClient(networkHandler),()->{});
+        if(FabricLoader.getInstance().
+                getEnvironmentType() == EnvType.CLIENT)
+            handleClient(networkHandler);
     }
 
     @Environment(EnvType.CLIENT)
@@ -86,13 +87,13 @@ public class PacketS2CArmorStandEntityUpdate extends Packet implements ManagedPa
             int x = data.getInt("x");
             int y = data.getInt("y");
             int z = data.getInt("z");
-            if(player.world.getBlockId(x,y,z) == ArmorStandStationAPI.armorStand.id &&
-                    player.world.getBlockEntity(x,y,z) instanceof ArmorStandBlockEntity armorStandBlock) {
+            if(player.world.getBlockEntity(x,y,z)
+                    instanceof ArmorStandBlockEntity armorStandBlock) {
                 armorStandBlock.readNbt(data);
                 player.world.setBlockDirty(x,y,z);
             }
         } catch (Exception e){
-            e.printStackTrace();
+            ArmorStandStationAPI.LOGGER.info(e);
         }
 
     }
