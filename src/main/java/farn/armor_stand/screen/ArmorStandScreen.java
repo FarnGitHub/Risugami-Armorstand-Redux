@@ -7,6 +7,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.inventory.Inventory;
+import net.minecraft.screen.slot.Slot;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
@@ -17,12 +18,14 @@ public class ArmorStandScreen extends HandledScreen {
 	public final ArmorStandBlockEntity armorStandEntity;
 	public final Inventory inventory;
 	private final List<ArmorStandSkinButton> skinButtons = new ArrayList<>();
+	private ArmorStandScreenHandler armorScreenHandler;
 
 	public ArmorStandScreen(Inventory inv, ArmorStandBlockEntity entity) {
 		super(new ArmorStandScreenHandler(inv, entity));
 		this.inventory = inv;
 		this.armorStandEntity = entity;
 		this.backgroundHeight = 150;
+		this.armorScreenHandler = (ArmorStandScreenHandler)this.handler;
 	}
 
 	public void init() {
@@ -54,6 +57,16 @@ public class ArmorStandScreen extends HandledScreen {
 		this.textRenderer.draw("Skin", 93, 6, 4210752);
 		this.textRenderer.draw(this.inventory.getName(), 8,
 				this.backgroundHeight - 96 + 2, 4210752);
+		for(Slot slot : armorScreenHandler.armorStandSlots) {
+			if(slot != null && !slot.hasStack()) {
+				GL11.glDisable(2896);
+				this.minecraft.textureManager.bindTexture(
+						this.minecraft.textureManager.getTextureId(
+								"/assets/armor_stand/armor_stand_gui.png"));
+				this.drawTexture(slot.x, slot.y, 190, slot.index * 16, 16, 16);
+				GL11.glEnable(2896);
+			}
+		}
 	}
 
 	protected void mouseClicked(int mouseX, int mouseY, int button) {

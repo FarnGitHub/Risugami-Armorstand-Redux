@@ -89,9 +89,6 @@ public class ArmorStandBlockEntityRenderer extends BlockEntityRenderer {
 	}
 
 	private void renderBipedModel(BipedEntityModel currentModel) {
-		currentModel.leftArmPose = false;
-		currentModel.rightArmPose = false;
-		currentModel.handSwingProgress = -9991.0F;
 		currentModel.
 				render(0.0F, 0.0F, 0.0F,
 						0.0F, 0.0F, 1.0F / 16.0F);
