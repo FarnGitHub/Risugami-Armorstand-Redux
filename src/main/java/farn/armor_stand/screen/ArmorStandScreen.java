@@ -59,13 +59,13 @@ public class ArmorStandScreen extends HandledScreen {
 				this.backgroundHeight - 96 + 2, 4210752);
 		for(Slot slot : armorScreenHandler.armorStandSlots) {
 			if(slot != null && !slot.hasStack()) {
-				GL11.glDisable(GL11.GL_LIGHTING);
+				//GL11.glDisable(GL11.GL_LIGHTING);
 				this.minecraft.textureManager.bindTexture(
 						this.minecraft.textureManager.getTextureId(
 								"/assets/armor_stand/armor_stand_gui.png"));
 				this.drawTexture(slot.x, slot.y, 190, slot.index * 16,
 						16, 16);
-				GL11.glEnable(GL11.GL_LIGHTING);
+				//GL11.glEnable(GL11.GL_LIGHTING);
 			}
 		}
 	}
