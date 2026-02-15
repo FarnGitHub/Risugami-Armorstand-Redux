@@ -3,9 +3,9 @@ package farn.armor_stand;
 import farn.armor_stand.block.ArmorStandBlock;
 import farn.armor_stand.block.entity.ArmorStandBlockEntity;
 import farn.armor_stand.block.entity.ArmorStandBlockEntityRenderer;
-import farn.armor_stand.network.PacketC2SChangeArmorStandSkin;
-import farn.armor_stand.network.PacketS2CArmorStandEntityUpdate;
-import farn.armor_stand.screen.ArmorStandScreenFactory;
+import farn.armor_stand.network.packet.ArmorStandUpdatePacket;
+import farn.armor_stand.network.packet.ArmorStandChangeSkinPacket;
+import farn.armor_stand.screen.inventory.ArmorStandScreenFactory;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.mine_diver.unsafeevents.listener.EventListener;
@@ -64,10 +64,10 @@ public class ArmorStandStationAPI {
     public void registerPacket(PacketRegisterEvent event) {
         Registry.register(PacketTypeRegistry.INSTANCE,
                 NAMESPACE.id("armor_stand_update_packet"),
-                PacketS2CArmorStandEntityUpdate.TYPE);
+                ArmorStandUpdatePacket.TYPE);
         Registry.register(PacketTypeRegistry.INSTANCE,
                 NAMESPACE.id("armor_stand_skin_packet"),
-                PacketC2SChangeArmorStandSkin.TYPE);
+                ArmorStandChangeSkinPacket.TYPE);
     }
 
 }

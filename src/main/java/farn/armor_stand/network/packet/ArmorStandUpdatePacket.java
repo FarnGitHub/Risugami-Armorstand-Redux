@@ -1,4 +1,4 @@
-package farn.armor_stand.network;
+package farn.armor_stand.network.packet;
 
 import farn.armor_stand.ArmorStandStationAPI;
 import farn.armor_stand.block.entity.ArmorStandBlockEntity;
@@ -17,18 +17,20 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 
-public class PacketS2CArmorStandEntityUpdate extends Packet implements ManagedPacket<PacketS2CArmorStandEntityUpdate> {
+public class ArmorStandUpdatePacket extends Packet implements ManagedPacket<ArmorStandUpdatePacket> {
 
     public NbtCompound data;
     public int dataSize = 0;
-    public static final PacketType<PacketS2CArmorStandEntityUpdate> TYPE = PacketType.builder(true, false, PacketS2CArmorStandEntityUpdate::new).build();
+    public static final PacketType<ArmorStandUpdatePacket>
+            TYPE = PacketType.builder(true, false,
+            ArmorStandUpdatePacket::new).build();
 
-    public PacketS2CArmorStandEntityUpdate() {
+    public ArmorStandUpdatePacket() {
         worldPacket = true;
     }
 
     @Environment(EnvType.SERVER)
-    public PacketS2CArmorStandEntityUpdate(ArmorStandBlockEntity te) {
+    public ArmorStandUpdatePacket(ArmorStandBlockEntity te) {
         this();
         data = new NbtCompound();
         te.writeNbt(data);
@@ -42,9 +44,9 @@ public class PacketS2CArmorStandEntityUpdate extends Packet implements ManagedPa
     public NbtCompound readNbt(DataInputStream dis) {
         try {
             int length = Short.toUnsignedInt(dis.readShort());
-            if (length == 0) {
+            if (length == 0)
                 return null;
-            } else {
+            else {
                 byte[] data = new byte[length];
                 dis.readFully(data);
                 return NbtIo.readCompressed(new ByteArrayInputStream(data));
@@ -83,7 +85,8 @@ public class PacketS2CArmorStandEntityUpdate extends Packet implements ManagedPa
     @Environment(EnvType.CLIENT)
     public void handleClient(NetworkHandler networkHandler) {
         try {
-            PlayerEntity player = PlayerHelper.getPlayerFromPacketHandler(networkHandler);
+            PlayerEntity player =
+                    PlayerHelper.getPlayerFromPacketHandler(networkHandler);
             int x = data.getInt("x");
             int y = data.getInt("y");
             int z = data.getInt("z");
@@ -104,7 +107,7 @@ public class PacketS2CArmorStandEntityUpdate extends Packet implements ManagedPa
     }
 
     @Override
-    public @NotNull PacketType<PacketS2CArmorStandEntityUpdate> getType() {
+    public @NotNull PacketType<ArmorStandUpdatePacket> getType() {
         return TYPE;
     }
 }

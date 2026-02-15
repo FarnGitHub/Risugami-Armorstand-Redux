@@ -1,7 +1,7 @@
-package farn.armor_stand.network;
+package farn.armor_stand.network.packet;
 
 import farn.armor_stand.block.entity.ArmorStandBlockEntity;
-import farn.armor_stand.screen.ArmorStandScreenHandler;
+import farn.armor_stand.screen.inventory.ArmorStandScreenHandler;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
@@ -17,16 +17,20 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class PacketC2SChangeArmorStandSkin extends Packet implements ManagedPacket<PacketC2SChangeArmorStandSkin> {
+public class ArmorStandChangeSkinPacket extends Packet implements ManagedPacket<ArmorStandChangeSkinPacket> {
 
     public byte skin;
-    public static final PacketType<PacketC2SChangeArmorStandSkin> TYPE = PacketType.builder(false, true, PacketC2SChangeArmorStandSkin::new).build();
+    public static final PacketType<ArmorStandChangeSkinPacket>
+            TYPE = PacketType.builder(false, true,
+            ArmorStandChangeSkinPacket::new).build();
 
-    public PacketC2SChangeArmorStandSkin() {
+    public ArmorStandChangeSkinPacket() {
+        this.worldPacket = true;
     }
 
     @Environment(EnvType.CLIENT)
-    public PacketC2SChangeArmorStandSkin(byte skin) {
+    public ArmorStandChangeSkinPacket(byte skin) {
+        this();
         this.skin = skin;
     }
 
@@ -61,7 +65,8 @@ public class PacketC2SChangeArmorStandSkin extends Packet implements ManagedPack
                 PlayerHelper.getPlayerFromPacketHandler(networkHandler);
         if(player.currentScreenHandler instanceof ArmorStandScreenHandler handler) {
             ArmorStandBlockEntity armorStandBlock = handler.armorStandEntity;
-            if(armorStandBlock.canPlayerUse(player)) {
+            if(armorStandBlock.canPlayerUse(player)
+                    && player.currentScreenHandler instanceof ArmorStandScreenHandler) {
                 armorStandBlock.skin = skin;
                 armorStandBlock.markDirty();
             }
@@ -75,7 +80,7 @@ public class PacketC2SChangeArmorStandSkin extends Packet implements ManagedPack
 
     @Override
     @NotNull
-    public PacketType<PacketC2SChangeArmorStandSkin> getType() {
+    public PacketType<ArmorStandChangeSkinPacket> getType() {
         return TYPE;
     }
 }

@@ -2,7 +2,7 @@ package farn.armor_stand.skin;
 
 public enum ArmorStandSkins {
     PLAYER("Player", "/mob/char.png"),
-    WOOD("Wood", "/assets/armor_stand/armor_stand.png"),
+    WOOD("Wood", "/assets/armor_stand/wood_stand.png"),
     STEVE("Steve", "/mob/char.png"),
     ZOMBIE("Zombie", "/mob/zombie.png");
 
@@ -23,6 +23,6 @@ public enum ArmorStandSkins {
     }
 
     public static boolean isPlayerSkin(int ordinal) {
-        return ordinal == ArmorStandSkins.PLAYER.ordinal();
+        return ordinal % values().length == ArmorStandSkins.PLAYER.ordinal();
     }
 }

@@ -1,7 +1,7 @@
 package farn.armor_stand.block;
 
 import farn.armor_stand.block.entity.ArmorStandBlockEntity;
-import farn.armor_stand.screen.ArmorStandScreenHandler;
+import farn.armor_stand.screen.inventory.ArmorStandScreenHandler;
 import farn.armor_stand.ArmorStandStationAPI;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
@@ -26,7 +26,7 @@ public class ArmorStandBlock extends TemplateBlockWithEntity {
 		super(identifier, 1, Material.WOOD);
 		this.setBoundingBox(0.1F, 0.0F, 0.1F, 0.9F, 0.1F, 0.9F);
 		this.textureId = Block.STONE.textureId;
-		this.setTranslationKey(ArmorStandStationAPI.NAMESPACE, "armor_stand_block");
+		this.setTranslationKey(ArmorStandStationAPI.NAMESPACE, "armor_stand");
 		this.setSoundGroup(Block.STONE_SOUND_GROUP);
 		this.setHardness(0.1F);
 	}
@@ -97,9 +97,8 @@ public class ArmorStandBlock extends TemplateBlockWithEntity {
 
 						while(stack.count > 0) {
 							int count = world.random.nextInt(21) + 10;
-							if(count > stack.count) {
+							if(count > stack.count)
 								count = stack.count;
-							}
 
 							stack.count -= count;
 							ItemEntity item = new ItemEntity(world, x + offsetX, y + offsetY, z + offsetZ, new ItemStack(stack.itemId, count, stack.getDamage()));

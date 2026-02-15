@@ -7,14 +7,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.network.OtherPlayerEntity;
 import net.minecraft.client.texture.SkinImageProcessor;
 
-public class FakePlayer extends OtherPlayerEntity {
-    private PlayerCache plrCache;
+public class FakePlayerEntity extends OtherPlayerEntity {
+    private PlayerModelCache plrCache;
 
-    public FakePlayer(ArmorStandBlockEntity blockEntity) {
+    public FakePlayerEntity(ArmorStandBlockEntity blockEntity) {
         super(Minecraft.INSTANCE.world, blockEntity.placer);
     }
 
-    public FakePlayer(String name) {
+    public FakePlayerEntity(String name) {
         super(Minecraft.INSTANCE.world, name);
     }
 
@@ -23,15 +23,15 @@ public class FakePlayer extends OtherPlayerEntity {
     public void updateCapeUrl() {
         super.updateCapeUrl();
         if(plrCache != null)
-            plrCache.url = this.skinUrl;
+            plrCache.skinUrl = this.skinUrl;
     }
 
-    public void setPlayerCache(PlayerCache plrCache) {
+    public void setPlayerCache(PlayerModelCache plrCache) {
         this.plrCache = plrCache;
     }
 
     public void downloadSkin() {
-        if(this.skinUrl.startsWith("http://s3.amazonaws.com/MinecraftSkins/"))
+        if(name != null && !this.name.isEmpty() && this.skinUrl.startsWith("http://s3.amazonaws.com/MinecraftSkins/"))
             Minecraft.INSTANCE.textureManager.
                     downloadImage(this.skinUrl, new SkinImageProcessor());
     }

@@ -1,7 +1,7 @@
 package farn.armor_stand.block.entity;
 
-import farn.armor_stand.network.PacketS2CArmorStandEntityUpdate;
 import farn.armor_stand.network.ServerUtil;
+import farn.armor_stand.network.packet.ArmorStandUpdatePacket;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.entity.BlockEntity;
@@ -36,23 +36,19 @@ public class ArmorStandBlockEntity extends BlockEntity implements Inventory {
 				this.items[slot] = null;
 			} else {
 				removedStack = this.items[slot].split(stack);
-				if(this.items[slot].count == 0) {
+				if(this.items[slot].count <= 0)
 					this.items[slot] = null;
-				}
 			}
 			this.markDirty();
 			return removedStack;
-		} else {
-			return null;
-		}
+		} else return null;
 	}
 
 	@Override
 	public void setStack(int slot, ItemStack stack) {
 		this.items[slot] = stack;
-		if(stack != null && stack.count > this.getMaxCountPerStack()) {
+		if(stack != null && stack.count > this.getMaxCountPerStack())
 			stack.count = this.getMaxCountPerStack();
-		}
 		this.markDirty();
 	}
 
@@ -77,9 +73,8 @@ public class ArmorStandBlockEntity extends BlockEntity implements Inventory {
 		for(int index = 0; index < itemsList.size(); ++index) {
 			NbtCompound itemData = (NbtCompound)itemsList.get(index);
 			byte targetSlot = itemData.getByte("Slot");
-			if (targetSlot >= 0 && targetSlot < this.items.length) {
+			if (targetSlot >= 0 && targetSlot < this.items.length)
 				this.items[targetSlot] = new ItemStack(itemData);
-			}
 		}
 	}
 
@@ -99,20 +94,22 @@ public class ArmorStandBlockEntity extends BlockEntity implements Inventory {
 
 		nbt.put("Items", list);
 		nbt.putByte("Skin", this.skin);
-		if(!this.placer.isEmpty()) {
+		if(!this.placer.isEmpty())
 			nbt.putString("Placer", this.placer);
-		}
 	}
 
 	@Environment(EnvType.SERVER)
 	@Override
 	public Packet createUpdatePacket() {
-		return new PacketS2CArmorStandEntityUpdate(this);
+		return new ArmorStandUpdatePacket(this);
 	}
 
 	@Override
 	public boolean canPlayerUse(PlayerEntity var1) {
-		return this.world.getBlockEntity(this.x, this.y, this.z) == this && var1.getDistance((double)this.x + 0.5D, (double)this.y + 0.5D, (double)this.z + 0.5D) <= 64.0D;
+		return this.world.getBlockEntity(this.x, this.y, this.z) == this &&
+				var1.getDistance((double)this.x + 0.5D,
+								(double)this.y + 0.5D,
+								(double)this.z + 0.5D) <= 64.0D;
 	}
 
 	@Environment(EnvType.SERVER)

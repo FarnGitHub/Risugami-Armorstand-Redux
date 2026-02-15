@@ -25,6 +25,11 @@ loom {
     mixin {
         useLegacyMixinAp = false
     }
+    runs {
+        client {
+            programArgs(["--username", ""])
+        }
+    }
 }
 
 repositories {

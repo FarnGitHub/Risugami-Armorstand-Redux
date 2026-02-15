@@ -1,7 +1,6 @@
-package farn.armor_stand.screen;
+package farn.armor_stand.screen.inventory;
 
 import farn.armor_stand.block.entity.ArmorStandBlockEntity;
-import farn.armor_stand.inventory_slot.ArmorStandSlot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
@@ -22,23 +21,19 @@ public class ArmorStandScreenHandler extends ScreenHandler {
 		int x;
 		int y;
 		//armor slot for armor stand
-		for(y = 0; y < 2; ++y) {
-			for(x = 0; x < 2; ++x) {
-				this.addSlot(armorStandSlots[i] = new ArmorStandSlot(armorStand, i, 8 + x * 18, 18 + y * 18, i++));
-			}
-		}
+		for(y = 0; y < 2; ++y)
+			for(x = 0; x < 2; ++x)
+				this.addSlot(armorStandSlots[i] =
+						new ArmorStandInventorySlot(armorStand, i, 8 + x * 18, 18 + y * 18, i++));
 
 		//player inventory
-		for(y = 0; y < 3; ++y) {
-			for(x = 0; x < 9; ++x) {
+		for(y = 0; y < 3; ++y)
+			for(x = 0; x < 9; ++x)
 				this.addSlot(new Slot(inv, x + (y + 1) * 9, 8 + x * 18, 68 + y * 18));
-			}
-		}
 
 		//player hotbar
-		for(i = 0; i < 9; ++i) {
+		for(i = 0; i < 9; ++i)
 			this.addSlot(new Slot(inv, i, 8 + i * 18, 126));
-		}
 	}
 
 	public boolean canUse(PlayerEntity plr) {
@@ -56,20 +51,18 @@ public class ArmorStandScreenHandler extends ScreenHandler {
 				//get the armor stand slot that the item can be put in
 				//return -1 if there isn't one
 				int armorSlot = getValidSlotForArmor(slot);
-				if(armorSlot >= 0) {
+				if (armorSlot >= 0)
 					//insert in one of the armor stand slot
 					this.insertItem(stack, armorSlot, armorSlot + 1, false);
-				} else if(slotId <= 31) {
+				else if (slotId <= 31)
 					//move to hotbar if it inside player external inventory
 					this.insertItem(stack, 32, 41, false);
-				} else {
+				else
 					//move to player external inventory if it inside hotbar
 					this.insertItem(stack, 5, 31, false);
-				}
-			} else {
+			} else
 				//move to player inventory if it inside armor stand slot
 				this.insertItem(stack, 5, 41, false);
-			}
 
 			if (stack.count <= 0)
 				slot.setStack(null);

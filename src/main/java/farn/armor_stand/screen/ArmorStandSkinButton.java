@@ -2,16 +2,16 @@ package farn.armor_stand.screen;
 
 import farn.armor_stand.skin.ArmorStandSkins;
 import farn.armor_stand.block.entity.ArmorStandBlockEntity;
-import farn.armor_stand.network.PacketC2SChangeArmorStandSkin;
+import farn.armor_stand.network.packet.ArmorStandChangeSkinPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.modificationstation.stationapi.api.network.packet.PacketHelper;
 import org.lwjgl.opengl.GL11;
 
-public class ArmorStandButton extends ButtonWidget {
+public class ArmorStandSkinButton extends ButtonWidget {
     ArmorStandBlockEntity entity;
 
-    public ArmorStandButton(int id, int x, int y, ArmorStandBlockEntity entity) {
+    public ArmorStandSkinButton(int id, int x, int y, ArmorStandBlockEntity entity) {
         super(id, x, y, 7, 7, ArmorStandSkins.getName(id));
         this.entity = entity;
     }
@@ -25,12 +25,11 @@ public class ArmorStandButton extends ButtonWidget {
         }
     }
 
-    public boolean handleButtonClicked(Minecraft minecraft, int mouseX, int mouseY) {
-        if(isMouseOver(minecraft, mouseX, mouseY)) {
+    public boolean buttonClicked(Minecraft minecraft, int mouseX, int mouseY) {
+        if(isMouseOver(minecraft, mouseX, mouseY) && entity.skin != id) {
             entity.skin = (byte)this.id;
-            if(minecraft.world.isRemote) {
-                PacketHelper.send(new PacketC2SChangeArmorStandSkin(entity.skin));
-            }
+            if(minecraft.world.isRemote)
+                PacketHelper.send(new ArmorStandChangeSkinPacket(entity.skin));
             return true;
         }
         return false;
