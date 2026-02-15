@@ -27,6 +27,7 @@ public class ArmorStandScreen extends HandledScreen {
 
 	public void init() {
 		super.init();
+		this.skinButtons.clear();
 		int newX = this.width - this.backgroundWidth >> 1;
 		int newY = this.height - this.backgroundHeight >> 1;
 		for(ArmorStandSkins skin : ArmorStandSkins.values())
