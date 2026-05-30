@@ -4,13 +4,17 @@ import farn.armor_stand.block.ArmorStandBlock;
 import farn.armor_stand.block.entity.ArmorStandBlockEntity;
 import farn.armor_stand.block.entity.ArmorStandBlockEntityRenderer;
 import farn.armor_stand.network.packet.ArmorStandUpdatePacket;
-import farn.armor_stand.network.packet.ArmorStandChangeSkinPacket;
+import farn.armor_stand.network.packet.ArmorStandSkinPacket;
 import farn.armor_stand.screen.inventory.ArmorStandScreenFactory;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.loader.api.FabricLoader;
 import net.mine_diver.unsafeevents.listener.EventListener;
 import net.modificationstation.stationapi.api.client.event.block.entity.BlockEntityRendererRegisterEvent;
+import net.modificationstation.stationapi.api.client.event.texture.TextureRegisterEvent;
 import net.modificationstation.stationapi.api.client.gui.screen.GuiHandler;
+import net.modificationstation.stationapi.api.client.texture.atlas.Atlas;
+import net.modificationstation.stationapi.api.client.texture.atlas.Atlases;
 import net.modificationstation.stationapi.api.event.block.entity.BlockEntityRegisterEvent;
 import net.modificationstation.stationapi.api.event.network.packet.PacketRegisterEvent;
 import net.modificationstation.stationapi.api.event.registry.BlockRegistryEvent;
@@ -31,6 +35,7 @@ public class ArmorStandStationAPI {
     public static Logger LOGGER = Null.get();
 
     public static ArmorStandBlock armorStand;
+    public static Atlas.Sprite[] armorStandIcon = new Atlas.Sprite[5];
 
     @Environment(EnvType.CLIENT)
     @EventListener
@@ -55,9 +60,7 @@ public class ArmorStandStationAPI {
 
     @EventListener
     public void registerBlockEntity(BlockEntityRegisterEvent event) {
-        event.register(
-                ArmorStandBlockEntity.class,
-                NAMESPACE.id("armor_stand_block_entity").toString());
+        event.register(NAMESPACE.id("armor_stand_block_entity"), ArmorStandBlockEntity.class);
     }
 
     @EventListener
@@ -67,7 +70,20 @@ public class ArmorStandStationAPI {
                 ArmorStandUpdatePacket.TYPE);
         Registry.register(PacketTypeRegistry.INSTANCE,
                 NAMESPACE.id("armor_stand_skin_packet"),
-                ArmorStandChangeSkinPacket.TYPE);
+                ArmorStandSkinPacket.TYPE);
+    }
+
+    @EventListener
+    public void registerTexture(TextureRegisterEvent event) {
+        String[] armorStandIcon = new String[]{
+                "item/helmet_icon",
+                "item/chestplate_icon",
+                "item/legging_icon",
+                "item/boot_icon",
+                "item/item_icon",
+        };
+        for(int i = 0; i < ArmorStandStationAPI.armorStandIcon.length; ++i)
+            ArmorStandStationAPI.armorStandIcon[i] = Atlases.getGuiItems().addTexture(NAMESPACE.id(armorStandIcon[i]));
     }
 
 }

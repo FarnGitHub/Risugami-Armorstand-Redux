@@ -1,7 +1,7 @@
 package farn.armor_stand.block.entity;
 
 import farn.armor_stand.skin.*;
-import farn.armor_stand.skin.player.PlayerModelCache;
+import farn.armor_stand.skin.player.SkinCache;
 import farn.armor_stand.skin.player.FakePlayerEntity;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.fabricmc.api.EnvType;
@@ -37,9 +37,9 @@ public class ArmorStandBlockEntityRenderer extends BlockEntityRenderer {
 	private final BipedEntityModel armor_inner = new BipedEntityModel(0.5F);
 	private final BipedEntityModel body = new BipedEntityModel(0.0F);
 	private static final Map<Identifier, String[]> armorCache = new Reference2ObjectOpenHashMap<>();
-	private static final Map<String, PlayerModelCache> plrCache = new Reference2ObjectOpenHashMap<>();
+	private static final Map<String, SkinCache> plrSkin = new Reference2ObjectOpenHashMap<>();
 	private LivingEntity dummy;
-	private PlayerModelCache defaultCache;
+	private SkinCache defaultCache;
 	private String defaultPlayerTexture = "";
 
 	public void render(BlockEntity blockEntity, double x, double y, double z, float tick) {
@@ -49,9 +49,9 @@ public class ArmorStandBlockEntityRenderer extends BlockEntityRenderer {
 			if(dummy.world != tileEntityArmor.world)
 				dummy.setWorld(tileEntityArmor.world);
 			if(defaultCache == null) {
-				FakePlayerEntity fake = new FakePlayerEntity("");
+				FakePlayerEntity fake = new FakePlayerEntity("", false);
 				defaultCache =
-						new PlayerModelCache("", PlayerModelCache.clonePlayerModel(fake));
+						new SkinCache("", SkinCache.defaultModel());
 				defaultPlayerTexture = fake.getTexture();
 			}
 			glPushMatrix();
@@ -63,13 +63,13 @@ public class ArmorStandBlockEntityRenderer extends BlockEntityRenderer {
 			glScalef(0.9F, -0.9F, -0.9F);
 			float facingRot = tileEntityArmor.getPushedBlockData() * 360.0F / 16F;
 			glRotatef(facingRot, 0.0F, 1.0F, 0.0F);
-			PlayerModelCache cache = null;
+			SkinCache cache = null;
 			BipedEntityModel mainModel = body;
 			if(ArmorStandSkins.isPlayerSkin(tileEntityArmor.skin)
-					&& (cache = getPlayerCache(tileEntityArmor)) != null)
+					&& (cache = getSkinCache(tileEntityArmor.placer)) != null)
 				mainModel = cache.model;
 
-			renderArmorStandEntityModel(cache, tileEntityArmor);
+			renderArmorStandModel(cache, tileEntityArmor.skin);
 			for (int slot = 0; slot < 5; ++slot) {
 				ItemStack stack = tileEntityArmor.getStack(slot);
 				if (stack != null) {
@@ -94,36 +94,31 @@ public class ArmorStandBlockEntityRenderer extends BlockEntityRenderer {
 						0.0F, 0.0F, 1.0F / 16.0F);
 	}
 
-	private PlayerModelCache getPlayerCache(ArmorStandBlockEntity blockEntity) {
-		if(blockEntity.placer.isEmpty()) return defaultCache;
-		return plrCache.computeIfAbsent(blockEntity.placer, pl -> {
+	private SkinCache getSkinCache(String plrName) {
+		if(plrName.isEmpty()) return defaultCache;
+		return plrSkin.computeIfAbsent(plrName, pl -> {
 			try {
-				FakePlayerEntity fake = new FakePlayerEntity(blockEntity);
-				PlayerModelCache finalCache = new PlayerModelCache(
-						fake.skinUrl, PlayerModelCache.clonePlayerModel(fake));
-				fake.downloadSkin();
-				fake.setPlayerCache(finalCache);
-				return finalCache;
+				FakePlayerEntity fake = new FakePlayerEntity(plrName, true);
+				fake.setPlayerCache(new SkinCache(
+						fake.skinUrl, SkinCache.cloneModel(fake)));
+				return fake.plrCache;
 			} catch (Exception e) {
 				return defaultCache;
 			}
 		});
 	}
 
-	private void renderArmorStandEntityModel(@Nullable PlayerModelCache cache, ArmorStandBlockEntity tileEntityArmor) {
+	private void renderArmorStandModel(@Nullable SkinCache cache, int skinId) {
+		if(ArmorStandSkins.isInvisible(skinId)) return;
 		if(cache != null)
-			bindSkinTexture(cache.skinUrl);
+			this.dispatcher.textureManager.bindTexture(
+					this.dispatcher.textureManager.downloadTexture(cache.skin
+							, defaultPlayerTexture));
 		else
-			this.bindTexture(ArmorStandSkins.getTexture(tileEntityArmor.skin));
+			this.bindTexture(ArmorStandSkins.getTexture(skinId));
 		glPushMatrix();
 		renderBipedModel(cache != null ? cache.model : body);
 		glPopMatrix();
-	}
-
-	private void bindSkinTexture(String skin) {
-		this.dispatcher.textureManager.bindTexture(
-				this.dispatcher.textureManager.downloadTexture(skin
-						, defaultPlayerTexture));
 	}
 
 	private void renderArmor(ArmorItem armor, float brightness) {

@@ -1,13 +1,20 @@
 package farn.armor_stand.screen;
 
+import farn.armor_stand.ArmorStandStationAPI;
+import farn.armor_stand.network.packet.ArmorStandSkinPacket;
 import farn.armor_stand.screen.inventory.ArmorStandScreenHandler;
 import farn.armor_stand.skin.ArmorStandSkins;
 import farn.armor_stand.block.entity.ArmorStandBlockEntity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
+import net.minecraft.client.render.Tessellator;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.screen.slot.Slot;
+import net.modificationstation.stationapi.api.client.StationRenderAPI;
+import net.modificationstation.stationapi.api.client.texture.Sprite;
+import net.modificationstation.stationapi.api.client.texture.atlas.Atlases;
+import net.modificationstation.stationapi.api.network.packet.PacketHelper;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
@@ -18,7 +25,7 @@ public class ArmorStandScreen extends HandledScreen {
 	public final ArmorStandBlockEntity armorStandEntity;
 	public final Inventory inventory;
 	private final List<ArmorStandSkinButton> skinButtons = new ArrayList<>();
-	private ArmorStandScreenHandler armorScreenHandler;
+	private final ArmorStandScreenHandler armorScreenHandler;
 
 	public ArmorStandScreen(Inventory inv, ArmorStandBlockEntity entity) {
 		super(new ArmorStandScreenHandler(inv, entity));
@@ -49,7 +56,7 @@ public class ArmorStandScreen extends HandledScreen {
 		this.drawTexture(backX, backY, 0, 0,
 				this.backgroundWidth, this.backgroundHeight);
 		for(ArmorStandSkinButton button : this.skinButtons)
-			button.render(this.minecraft, 0, 0);
+			button.render();
 	}
 
 	protected void drawForeground() {
@@ -57,23 +64,37 @@ public class ArmorStandScreen extends HandledScreen {
 		this.textRenderer.draw("Skin", 93, 6, 4210752);
 		this.textRenderer.draw(this.inventory.getName(), 8,
 				this.backgroundHeight - 96 + 2, 4210752);
-		for(Slot slot : armorScreenHandler.armorStandSlots) {
-			if(slot != null && !slot.hasStack()) {
-				//GL11.glDisable(GL11.GL_LIGHTING);
-				this.minecraft.textureManager.bindTexture(
-						this.minecraft.textureManager.getTextureId(
-								"/assets/armor_stand/armor_stand_gui.png"));
-				this.drawTexture(slot.x, slot.y, 190, slot.index * 16,
-						16, 16);
-				//GL11.glEnable(GL11.GL_LIGHTING);
-			}
-		}
+		for(Slot slot : armorScreenHandler.armorStandSlots)
+			if(slot != null && !slot.hasStack())
+				renderBgIcon(slot.x, slot.y, slot.index);
 	}
 
 	protected void mouseClicked(int mouseX, int mouseY, int button) {
-		for(ArmorStandSkinButton theButton : this.skinButtons)
-			if(theButton.buttonClicked(this.minecraft, mouseX, mouseY))
-				minecraft.soundManager.playSound("random.click", 1.0F, 1.0F);
+		for(ArmorStandSkinButton theButton : this.skinButtons) {
+			if(theButton.isMouseOver(this.minecraft, mouseX, mouseY)) {
+				theButton.entity.skin = theButton.skinId;
+				if(minecraft.world.isRemote)
+					PacketHelper.send(new ArmorStandSkinPacket(theButton.entity.skin));
+				break;
+			}
+		}
 		super.mouseClicked(mouseX, mouseY, button);
+	}
+
+	public void renderBgIcon(int x, int y, int index) {
+		StationRenderAPI.getBakedModelManager().
+				getAtlas(Atlases.GAME_ATLAS_TEXTURE).bindTexture();
+		Sprite sprite = ArmorStandStationAPI.armorStandIcon[index].getSprite();
+		float startU = sprite.getMinU();
+		float startV = sprite.getMinV();
+		float endU = sprite.getMaxU();
+		float endV = sprite.getMaxV();
+		Tessellator tess = Tessellator.INSTANCE;
+		tess.startQuads();
+		tess.vertex(x, y + 16, 0, startU, endV);
+		tess.vertex(x + 16, y + 16, 0, endU, endV);
+		tess.vertex(x + 16, y, 0, endU, startV);
+		tess.vertex(x, y, 0, startU, startV);
+		tess.draw();
 	}
 }

@@ -1,6 +1,6 @@
 plugins {
     id 'maven-publish'
-    id 'fabric-loom' version '1.14.9'
+    id 'fabric-loom' version '1.15-SNAPSHOT'
     id 'babric-loom-extension' version '1.14.1'
     id "com.modrinth.minotaur" version "2.+"
 }
@@ -160,6 +160,9 @@ dependencies {
     }
 
     modRuntimeOnly("maven.modrinth:fast-stapi-intro:2.0.0-b1.7.3")
+
+    modImplementation("maven.modrinth:apron:3.3.0")
+    modImplementation("maven.modrinth:mod-remapping-api:1.28.2-b1.7.3")
 }
 
 processResources {

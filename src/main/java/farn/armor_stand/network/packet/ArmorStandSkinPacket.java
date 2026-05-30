@@ -17,19 +17,19 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class ArmorStandChangeSkinPacket extends Packet implements ManagedPacket<ArmorStandChangeSkinPacket> {
+public class ArmorStandSkinPacket extends Packet implements ManagedPacket<ArmorStandSkinPacket> {
 
     public byte skin;
-    public static final PacketType<ArmorStandChangeSkinPacket>
+    public static final PacketType<ArmorStandSkinPacket>
             TYPE = PacketType.builder(false, true,
-            ArmorStandChangeSkinPacket::new).build();
+            ArmorStandSkinPacket::new).build();
 
-    public ArmorStandChangeSkinPacket() {
+    public ArmorStandSkinPacket() {
         this.worldPacket = true;
     }
 
     @Environment(EnvType.CLIENT)
-    public ArmorStandChangeSkinPacket(byte skin) {
+    public ArmorStandSkinPacket(byte skin) {
         this();
         this.skin = skin;
     }
@@ -80,7 +80,7 @@ public class ArmorStandChangeSkinPacket extends Packet implements ManagedPacket<
 
     @Override
     @NotNull
-    public PacketType<ArmorStandChangeSkinPacket> getType() {
+    public PacketType<ArmorStandSkinPacket> getType() {
         return TYPE;
     }
 }

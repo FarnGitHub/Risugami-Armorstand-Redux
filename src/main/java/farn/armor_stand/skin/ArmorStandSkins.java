@@ -4,7 +4,8 @@ public enum ArmorStandSkins {
     PLAYER("Player", "/mob/char.png"),
     WOOD("Wood", "/assets/armor_stand/wood_stand.png"),
     STEVE("Steve", "/mob/char.png"),
-    ZOMBIE("Zombie", "/mob/zombie.png");
+    ZOMBIE("Zombie", "/mob/zombie.png"),
+    INVISIBLE("Invisible", "");
 
     public final String name;
     public final String texture;
@@ -24,5 +25,9 @@ public enum ArmorStandSkins {
 
     public static boolean isPlayerSkin(int ordinal) {
         return ordinal % values().length == ArmorStandSkins.PLAYER.ordinal();
+    }
+
+    public static boolean isInvisible(int ordinal) {
+        return ordinal % values().length == ArmorStandSkins.INVISIBLE.ordinal();
     }
 }
